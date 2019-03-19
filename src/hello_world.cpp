@@ -59,6 +59,7 @@ int main(int argc,char** argv) {
 	printf("Content-type:text/text\n\n"); //把后面要打印的信息输出到页面
 	printf("Hello,World!!!");
 	cout<<"log_path: "<<argv[0]<<endl;
+
 	LOG(INFO) << "init glog "<<argc; 
 	LOG(INFO) << "glog test 1!!!";
 	LOG(INFO) << "glog test 2!!!";
