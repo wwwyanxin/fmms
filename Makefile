@@ -5,7 +5,7 @@ vpath %.h include
 
 CC = g++
 CFLAGS = -std=c++11 -g
-LIB = -lglog -lgflags -pthread
+LIB = -lmysqlcppconn -lglog -lgflags -pthread
 OUT_PATH = /var/www/cgi-bin/fmms/
 
 hello_world.cgi: hello_world.cpp
