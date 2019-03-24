@@ -18,21 +18,23 @@
 
 
 using namespace std;
-using namespace sql;
+//using namespace sql;
 
 
 
 
 #define DBHOST "tcp://localhost:3306"  
 #define USER "root"  
-#define PASSWORD "root"  
+#define PASSWORD "123"  
+#define DATA_BASE "fmms"
 
 
-char *getUrlParam(const char *sUrl,const char *sParam) {
-	LOG(INFO)<<"sUrl:"<<sUrl<<"    "<<"sParam:"<<sParam;
-	if(sUrl == NULL || sParam == NULL){
-		return NULL;
+string getUrlParam(const char *sUrl,const char *sParam) {
+	if(sUrl == NULL || sParam == NULL || strcmp(sUrl,"")==0 || strcmp(sParam,"")==0 ){
+		LOG(INFO)<<"参数为空";
+		return "";
 	}
+	LOG(INFO)<<"sUrl:"<<sUrl<<"    "<<"sParam:"<<sParam;
 	char *tmp_url = new char[strlen(sUrl)+1]();
 	strcpy(tmp_url,sUrl);
 	cout<<"sUrl: "<<sUrl<<"    "<<"sParam: "<<sParam<<endl;
@@ -49,7 +51,6 @@ char *getUrlParam(const char *sUrl,const char *sParam) {
 	key = strtok_r(param,equal_sign,&tokptr_param);
 	value = strtok_r(NULL,equal_sign,&tokptr_param);
 
-	cout<<"1param: "<<param<<"    "<<"key: "<<key<<"    "<<"value: "<<value<<endl;
 	auto func_match_handler = [&](){
 		if(strcmp(key,sParam)!=0){
 			return false;
@@ -65,36 +66,58 @@ char *getUrlParam(const char *sUrl,const char *sParam) {
 	while((param = strtok_r(NULL,delims,&tokptr_url))&& param != NULL) {
 		key = strtok_r(param,equal_sign,&tokptr_param);
 		value = strtok_r(NULL,equal_sign,&tokptr_param);
-		cout<<"2param: "<<param<<"    "<<"key: "<<key<<"    "<<"value: "<<value<<endl;
 		if(func_match_handler()){
-			return value;
+			return value != NULL ? value : "";
 		}
 	}   
 	LOG(INFO)<<"没找到 sParam:"<<sParam;
 	delete[] tmp_url;
 	tmp_url=nullptr;
-	return nullptr;
+	return "";
 }
 
 void sql_test(){
-	Driver *driver;  
-	Connection *conn;  
-	driver = get_driver_instance();  
-	conn = driver->connect(DBHOST, USER, PASSWORD);  
-	/*
-	   默认的话为自动提交， 
-	   每执行一个update ,delete或者insert的时候都会自动提交到数据库，无法回滚事务。 
-	   设置connection.setautocommit(false);只有程序调用connection.commit()的时候才会将先前执行的语句一起提交到数据库，这样就实现了数据库的事务。
+	string sql_str="select * from member where name = ? ";
+	sql::Driver *driver;  
+	sql::Connection *conn;  
+	sql::PreparedStatement *pstmt;
+	sql::ResultSet *res;
 
-	   true：sql命令的提交（commit）由驱动程序负责 
-	   false：sql命令的提交由应用程序负责，程序必须调用commit或者rollback方法
+	try{
+		driver = get_driver_instance();  
+		conn = driver->connect(DBHOST, USER, PASSWORD);  
+		conn->setSchema(DATA_BASE);
+		pstmt = conn->prepareStatement(sql_str);
 
-	   */
-	conn->setAutoCommit(0);  
-	cout<<"DataBase connection autocommit mode = "<<conn->getAutoCommit()<<endl;  
-	delete conn;  
-	driver = NULL;  
-	conn = NULL;  
+		pstmt->setString(1,"阿水淀粉");
+
+		res = pstmt->executeQuery();
+
+		LOG(INFO)<<"sqlQuery!!";
+
+		while (res->next()){
+			LOG(INFO)<<"res->next();";
+			string str_res = res->getString("name");
+			cout << "QueryRes: " <<str_res<<endl;
+			cout<<endl;
+		}
+
+		delete res;
+		delete pstmt;
+		delete conn;  
+
+	} catch (sql::SQLException& e) {
+		LOG(ERROR) << "# ERR: SQLException in " << __FILE__;
+		LOG(ERROR) << "(" << __FUNCTION__ << ") on line " << __LINE__ << std::endl;
+		LOG(ERROR) << "# ERR: " << e.what();
+		LOG(ERROR) << " (MySQL error code: " << e.getErrorCode();
+		LOG(ERROR) << ", SQLState: " << e.getSQLState() << " )" << std::endl;
+	}
+	res = nullptr;
+	pstmt = nullptr;
+	driver = nullptr;  
+	conn = nullptr;  
+	return;
 }
 
 int main(int argc,char** argv) {
@@ -105,24 +128,22 @@ int main(int argc,char** argv) {
 	// 缓存小于或等于这个级别的日志信息. (-1表示不缓存; 0表示只缓存INFO级别日志; ...) 
 	FLAGS_logbuflevel = -1;
 
-	printf("Content-type:text/text\n\n"); //把后面要打印的信息输出到页面
-	printf("Hello,World!!!");
+	LOG(INFO)<<"argc:"<<argc;
+
+
+	printf("Content-type:text/html; charset=utf-8\n\n"); //把后面要打印的信息输出到页面
+	printf("Hello,World!!!<br>");
 	cout<<"log_path: "<<argv[0]<<endl;
 
 	LOG(INFO) << "init glog "; 
-	LOG(INFO) << "glog test 1!!!";
-	LOG(INFO) << "glog test 2!!!";
-	LOG(INFO) << "glog test 2!!!";
-	LOG(INFO) << "glog test 3!!!";
-	LOG(INFO) << "glog test qewrwerwtrtrtretert!!!";
-	LOG(INFO) << argc;
 
 	char* queryParam = getenv("QUERY_STRING"); 
-	cout<<"QUERY_STRING: "<<queryParam<<endl;
-	cout<<"a:"<<getUrlParam(queryParam,"a")<<endl;
-	cout<<"b:"<<getUrlParam(queryParam,"b")<<endl;
-	cout<<"c:"<<getUrlParam(queryParam,"c")<<endl;
-	cout<<"e:"<<getUrlParam(queryParam,"e")<<endl;
+	cout<<"QUERY_STRING: <br>"<<queryParam<<endl;
 
+	cout<<"a:"<<getUrlParam(queryParam,"a")<<"<br>"<<endl;
+	cout<<"b:"<<getUrlParam(queryParam,"b")<<"<br>"<<endl;
+	cout<<"c:"<<getUrlParam(queryParam,"c")<<"<br>"<<endl;
+	cout<<"e:"<<getUrlParam(queryParam,"e")<<"<br>"<<endl;
+	
 	sql_test();
 }
