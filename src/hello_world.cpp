@@ -5,7 +5,7 @@
 #include<iostream>
 
 // glog 头文件
-#include "glog/logging.h"   
+#include <glog/logging.h>  
 
 // MySQL  Connector/C++
 #include <mysql_driver.h>
@@ -15,10 +15,10 @@
 #include <cppconn/prepared_statement.h>
 #include <cppconn/metadata.h>
 #include <cppconn/exception.h>
+#include <json/json.h>
 
 
 using namespace std;
-//using namespace sql;
 
 
 
@@ -120,6 +120,64 @@ void sql_test(){
 	return;
 }
 
+int json_test(){
+	string json_str ="{\"id\":1,\"name\":\"偶人民防空\"}";
+	Json::Reader reader;
+	Json::Value json_root;
+	if(reader.parse(json_str,json_root))
+	{
+		if(!json_root["id"].isNull())
+		{
+			cout << json_root["id"].asInt() << endl;
+			cout << json_root["name"].asString()<< endl;
+
+		}
+
+		cout<<json_root.toStyledString()<<endl;
+
+	}
+
+
+	Json::Value JsonRoot;
+	JsonRoot["age"] = Json::Value(22);
+	// 写入浮点型数字
+	JsonRoot["height"] = Json::Value(1.78);
+	// 写入布尔型
+	JsonRoot["play_football"] = Json::Value(true);
+	// 写入Json对象
+	Json::Value JsonObj;
+	JsonObj["sometime"] = Json::Value(2018);
+	JsonObj["someone"] = Json::Value("Kelly");
+	JsonObj["somewhere"] = Json::Value("city");
+	JsonRoot["object"] = JsonObj;
+
+	// 单个键写入数字数组
+	JsonRoot["number_array"].append(1);
+	JsonRoot["number_array"].append(2);
+	JsonRoot["number_array"].append(3);
+	JsonRoot["number_array"].append(4);
+	// 单个键写入字符串数组
+	JsonRoot["string_array"].append("string01");
+	JsonRoot["string_array"].append("string02");
+	JsonRoot["string_array"].append("string03");
+	// 写入Json对象数组，即数组由对象构成
+	Json::Value JsonArr1, JsonArr2, JsonArr3;
+	JsonArr1["string1"] = Json::Value("1-1");
+	JsonArr1["string2"] = Json::Value("1-2");
+	JsonArr2["string1"] = Json::Value("2-1");
+	JsonArr2["string2"] = Json::Value("2-2");
+	JsonArr3["string1"] = Json::Value("3-1");
+	JsonArr3["string2"] = Json::Value("3-2");
+	JsonRoot["object_array"].append(JsonArr1);
+	JsonRoot["object_array"].append(JsonArr2);
+	JsonRoot["object_array"].append(JsonArr3);
+
+	cout<<JsonRoot.toStyledString()<<endl;
+
+
+	return 0;
+}
+
 int main(int argc,char** argv) {
 	// 初始化GLOG
 	google::InitGoogleLogging(argv[0]); 
@@ -146,4 +204,5 @@ int main(int argc,char** argv) {
 	cout<<"e:"<<getUrlParam(queryParam,"e")<<"<br>"<<endl;
 	
 	sql_test();
+	json_test();
 }
