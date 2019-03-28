@@ -179,6 +179,13 @@ int json_test(){
 	return 0;
 }
 
+void redirect_test(const string &url){
+	printf("Status: 302 Found");
+	cout << "HTTP/1.1 302 Moved Permanently\n";
+	 
+	cout << "Location: "<<url<<"\n"<<endl;
+}
+
 int main(int argc,char** argv) {
 	// 初始化GLOG
 	google::InitGoogleLogging(argv[0]); 
@@ -189,6 +196,7 @@ int main(int argc,char** argv) {
 
 	LOG(INFO)<<"argc:"<<argc;
 
+	//redirect_test("http://www.baidu.com");
 
 	printf("Content-type:text/html; charset=utf-8\n\n"); //把后面要打印的信息输出到页面
 	printf("Hello,World!!!<br>");
