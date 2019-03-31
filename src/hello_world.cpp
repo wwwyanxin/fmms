@@ -3,6 +3,7 @@
 #include<string.h>
 
 #include<iostream>
+ #include<unordered_map>
 
 // glog 头文件
 #include <glog/logging.h>  
@@ -17,6 +18,10 @@
 #include <cppconn/exception.h>
 #include <json/json.h>
 
+// Redis
+#include <hiredis/hiredis.h>
+
+
 
 using namespace std;
 
@@ -29,11 +34,110 @@ using namespace std;
 #define DATA_BASE "fmms"
 
 
+vector<string>* string_split(const string& str, const string& delims){
+	string::size_type pos1,pos2;
+	pos2 = str.find(delims);
+	pos1 = 0;
+
+	vector<string>* result = new vector<string>();
+	while(string::npos != pos2){
+		result->push_back(str.substr(pos1,pos2-pos1));
+
+		pos1 = pos2 + delims.length();
+		pos2 = str.find(delims,pos1);
+	}
+	if(pos1 != str.length()){
+		result->push_back(str.substr(pos1));
+	}
+
+	return result;
+}
+
+unordered_multimap<string,string>* getParamMultimap(const string &str,const string &delims){
+	unordered_multimap<string,string> *result = new unordered_multimap<string,string>();
+	shared_ptr<vector<string>> segment_list (string_split(str,delims));
+	for(string &item : *segment_list){
+		string::size_type equal_sign_pos = item.find("=");
+		// 如果等号在开头，或者没有等号，那么此段参数格式错误，跳过
+		if(equal_sign_pos == 0 || equal_sign_pos == string::npos){
+			LOG(WARNING)<<"getParamMultimap WARNING : 等号格式错误";
+			continue;
+		}
+		shared_ptr<vector<string>> param (string_split(item,"="));
+		if(param->size()==0 || param->size()>2){
+			LOG(WARNING)<<"getParamMultimap WARNING : 参数数量错误";
+			continue;
+		}else if(param->size() == 1){
+			LOG(INFO)<<"getParamMultimap INFO : 空值";
+			result->insert(pair<string,string>(param->at(0),""));
+		}else{
+			result->insert(pair<string,string>(param->at(0),param->at(1)));
+		}
+	}
+	return result;
+}
+
+string* getParamValue(const string &str,const string &key,const string &delims){
+	shared_ptr<unordered_multimap<string,string>> paramMultimap (getParamMultimap(str,delims));
+	unordered_multimap<string,string>::const_iterator pairs = paramMultimap->find(key);
+
+	if(pairs == paramMultimap->end()){
+		LOG(INFO)<<"未找到 param value of key:"<<key;
+		return nullptr;
+	}else{
+		LOG(INFO)<<"找到param:  "<<key<<"="<<pairs->second;
+		string *result =  new string(pairs->second);
+		LOG(INFO)<<"getParamValue *result="<<*result;
+		return result;
+	}
+}
+
+vector<string>* getParamValueList(const string &str,const string &key,const string &delims){
+	shared_ptr<unordered_multimap<string,string>> paramMultimap (getParamMultimap(str,delims));
+	pair<unordered_map<string,string>::const_iterator, unordered_map<string,string>::const_iterator> range = paramMultimap->equal_range(key);
+
+	if(range.first == range.second){
+		LOG(INFO)<<"未找到 param value of key:"<<key;
+		return nullptr;
+	}else{
+		vector<string>* result = new vector<string>();
+		for(auto iter=range.first;iter!=range.second;++iter){
+			LOG(INFO)<<"找到param:  "<<key<<"="<<iter->second;
+			result->insert(result->begin(),iter->second);
+		}
+		return result;
+	}
+}
+
+string* getUrlValue(const string &key){
+	return getParamValue(getenv("QUERY_STRING"),key,"&");
+}
+
+vector<string>* getUrlValueList(const string &key){
+	return getParamValueList(getenv("QUERY_STRING"),key,"&");
+}
+
+/*
+vector<string>* getStringParamList(const string &str,const string &param_key,const string &delims){
+	shared_ptr<vector<string>> segment_list (string_split(str,delims));
+	vector<string> *paramList = new vector<string>();
+	for(string& item : *segment_list){
+		paramList.push_back(item);
+	}
+
+	return nullptr;
+
+}
+
 string getUrlParam(const char *sUrl,const char *sParam) {
 	if(sUrl == NULL || sParam == NULL || strcmp(sUrl,"")==0 || strcmp(sParam,"")==0 ){
 		LOG(INFO)<<"参数为空";
 		return "";
 	}
+	string param =  getParam(sUrl,sParam,"&");
+	LOG(INFO)<<"param:"<<param;
+	return param;
+	
 	LOG(INFO)<<"sUrl:"<<sUrl<<"    "<<"sParam:"<<sParam;
 	char *tmp_url = new char[strlen(sUrl)+1]();
 	strcpy(tmp_url,sUrl);
@@ -74,7 +178,9 @@ string getUrlParam(const char *sUrl,const char *sParam) {
 	delete[] tmp_url;
 	tmp_url=nullptr;
 	return "";
+
 }
+  */ 
 
 void sql_test(){
 	string sql_str="select * from member where name = ? ";
@@ -186,6 +292,94 @@ void redirect_test(const string &url){
 	cout << "Location: "<<url<<"\n"<<endl;
 }
 
+
+void redis_test(){
+
+	struct timeval timeout = {2, 0};    //2s的超时时间
+
+	redisContext *pRedisContext = (redisContext*)redisConnectWithTimeout("127.0.0.1", 6379, timeout);    //redisContext是Redis操作对象
+	if ( (NULL == pRedisContext) || (pRedisContext->err) )
+	{
+		if (pRedisContext)
+		{
+			LOG(ERROR)<<"connect error: "<< pRedisContext->errstr;
+			cout << "connect error:" << pRedisContext->errstr << endl;
+		}
+		else
+		{
+			LOG(ERROR)<<"connect error: can't allocate redis context.";
+			cout << "connect error: can't allocate redis context." << std::endl;
+		}
+		return ;
+	}
+
+	redisCommand(pRedisContext,"SET %s %s","keyabc","value-但是放水淀粉"); 
+
+	redisReply *pRedisReply = (redisReply*)redisCommand(pRedisContext,"GET %s","keyabc");
+	if(pRedisReply->str == nullptr)
+	{
+		LOG(ERROR)<<pRedisContext->errstr;
+		return;
+	}
+	cout<<"keyabc是："<<pRedisReply->str<<endl;
+	freeReplyObject(pRedisReply);
+
+
+
+
+	redisCommand(pRedisContext,"HMSET fmms_user:123 name wyx birthday 1996");
+	
+	redisCommand(pRedisContext,"EXPIRE fmms_user:123 60");
+
+	
+	pRedisReply = (redisReply*)redisCommand(pRedisContext,"TTL fmms_user:123");
+	if(pRedisReply->str == nullptr)
+	{
+		LOG(INFO)<<"reply type:"<<pRedisReply->type<<endl<<"REDIS_REPLY_STATUS="<<REDIS_REPLY_STATUS<<"  REDIS_REPLY_ERROR="<<REDIS_REPLY_ERROR<<"  REDIS_REPLY_INTEGER="<<REDIS_REPLY_INTEGER<<"    REDIS_REPLY_NIL="<<REDIS_REPLY_NIL<<"   REDIS_REPLY_STRING="<<REDIS_REPLY_STRING<<"   REDIS_REPLY_ARRAY="<<REDIS_REPLY_ARRAY;
+	}
+	LOG(INFO)<<"reply:"<<pRedisReply->integer;
+	cout<<"TTL fmms_user:123 =  "<<pRedisReply->integer<<endl;
+	freeReplyObject(pRedisReply);
+
+
+	/*
+	redisCommand(pRedisContext,"EXPIRE fmms_user:123 60");
+	*/
+
+
+	pRedisReply = (redisReply*)redisCommand(pRedisContext,"HGET fmms_user:123 name");
+	/*
+	pRedisReply = (redisReply*)redisCommand(pRedisContext,"HGETALL fmms_user:123");
+	for(size_t i=0;i<pRedisReply->elements;++i)
+	{
+		cout<<"fmms_user:123   "<<pRedisReply->element[i]->str<<endl;
+	}
+	*/
+	cout<<"fmms_user:123 name="<<pRedisReply->str<<endl;
+	freeReplyObject(pRedisReply);
+
+
+
+
+	// 释放redisConnect()所产生的连接
+	redisFree(pRedisContext);
+
+}
+
+void cookie_test(){
+	char* cookie_tmp = getenv("HTTP_COOKIE");
+	if(cookie_tmp!=nullptr)
+	{
+		LOG(INFO)<<"cookie:"<<cookie_tmp<<endl;
+	}
+	printf("Set-Cookie: manager_id=%d;Max-Age=%ld;Path=/; HttpOnly\n",123456,static_cast<long>(600));
+	printf("Set-Cookie: name=%d;Max-Age=%ld;\n",3123424,static_cast<long>(600));
+	printf("Set-Cookie: test=%d;Max-Age=%ld;\n",9847239,static_cast<long>(600));
+
+
+}
+
+
 int main(int argc,char** argv) {
 	// 初始化GLOG
 	google::InitGoogleLogging(argv[0]); 
@@ -198,20 +392,65 @@ int main(int argc,char** argv) {
 
 	//redirect_test("http://www.baidu.com");
 
+	cookie_test();
+
 	printf("Content-type:text/html; charset=utf-8\n\n"); //把后面要打印的信息输出到页面
 	printf("Hello,World!!!<br>");
 	cout<<"log_path: "<<argv[0]<<endl;
 
 	LOG(INFO) << "init glog "; 
 
-	char* queryParam = getenv("QUERY_STRING"); 
+	const char* queryParam = getenv("QUERY_STRING"); 
 	cout<<"QUERY_STRING: <br>"<<queryParam<<endl;
 
+	/*
 	cout<<"a:"<<getUrlParam(queryParam,"a")<<"<br>"<<endl;
 	cout<<"b:"<<getUrlParam(queryParam,"b")<<"<br>"<<endl;
 	cout<<"c:"<<getUrlParam(queryParam,"c")<<"<br>"<<endl;
 	cout<<"e:"<<getUrlParam(queryParam,"e")<<"<br>"<<endl;
+	*/
+	shared_ptr<string> param_a (getUrlValue("a"));
+	if(param_a!= nullptr){
+		cout<<"a:"<<*param_a<<"<br>"<<endl;
+	}else{
+		cout<<"a:nullptr"<<"<br>"<<endl;
+	}
+
+	shared_ptr<string> param_b (getUrlValue("b"));
+	if(param_b!= nullptr){
+		cout<<"b:"<<*param_b<<"<br>"<<endl;
+	}else{
+		cout<<"b:nullptr"<<"<br>"<<endl;
+	}
+
+	shared_ptr<string> param_c (getUrlValue("c"));
+	if(param_c!= nullptr){
+		cout<<"c:"<<*param_c<<"<br>"<<endl;
+	}else{
+		cout<<"c:nullptr"<<"<br>"<<endl;
+	}
 	
+	shared_ptr<string> param_e (getUrlValue("e"));
+	if(param_e!= nullptr){
+		cout<<"e:"<<*param_e<<"<br>"<<endl;
+	}else{
+		cout<<"e:nullptr"<<"<br>"<<endl;
+	}
+
+	shared_ptr<vector<string>> param_arr (getUrlValueList("arr"));
+	if(param_arr!= nullptr){
+		for(auto &item : *param_arr){
+			cout<<"arr:"<<item<<"<br>"<<endl;
+		}
+	}else{
+		cout<<"arr:nullptr"<<"<br>"<<endl;
+	}
+
+	//queryParam = "a=1&b=sdjskljfasfasd&l=sdfsd&c=123&d=sadfasfa&fsdf=dsf";
+	shared_ptr<vector<string>> result(string_split(queryParam,"="));
+	cout<<"size:"<<result->size()<<endl;
+
 	sql_test();
 	json_test();
+	redis_test();
 }
