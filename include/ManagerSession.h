@@ -4,6 +4,7 @@
 #include <string>
 #include <hiredis/hiredis.h>
 #include "Manager.h"
+#include "util.h"
 
 
 using namespace std;
@@ -14,6 +15,7 @@ class ManagerSession{
 		const string ip = "localhost";
 		const unsigned short port = 6379;  
 		const unsigned long expire_time = 24*60*60;
+		const string sessionCookieKey = "manager_id";
 
 		redisContext *pRedisContext;
 		redisReply *pRedisReply;
@@ -21,10 +23,15 @@ class ManagerSession{
 
 	public:
 		Manager* getManager(){
-			string cookie = getenv("HTTP_COOKIE");
+			string cookieStr = getenv("HTTP_COOKIE");
+			shared_ptr<string> sessionCookieValue(wyx::getParamValue(cookieStr,sessionCookieKey,"; "));
 
 			return nullptr;
 		}
+
+//		void setManager(Manager &manager){
+
+//		}
 };
 
 

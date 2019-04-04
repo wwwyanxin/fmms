@@ -4,11 +4,13 @@ vpath %.cpp src
 vpath %.h include
 
 CC = g++
-CFLAGS = -std=c++11 -g
-LIB = -lhiredis -ljsoncpp -lmysqlcppconn -lglog -lgflags -pthread
+RELEASE = -o3  #开启o3优化
+DEBUG = -o0 -g  #调试模式 不开启优化
+CFLAGS = -std=c++11 -pthread $(DEBUG)
+LIB = -lhiredis -ljsoncpp -lmysqlcppconn -lglog -lgflags 
 OUT_PATH = /var/www/fmms/cgi-bin/
 
-hello_world.cgi: hello_world.cpp
+hello_world.cgi: hello_world.cpp util.cpp WebServer.cpp Handler.cpp
 	$(CC) $(CFLAGS) $(LIB) $^ -o $(OUT_PATH)$@
 	
 clean:

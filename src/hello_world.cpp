@@ -3,7 +3,8 @@
 #include<string.h>
 
 #include<iostream>
- #include<unordered_map>
+#include<unordered_map>
+#include<memory>
 
 // glog 头文件
 #include <glog/logging.h>  
@@ -21,6 +22,9 @@
 // Redis
 #include <hiredis/hiredis.h>
 
+#include "../include/util.h"
+#include "../include/WebServer.h"
+
 
 
 using namespace std;
@@ -34,6 +38,7 @@ using namespace std;
 #define DATA_BASE "fmms"
 
 
+/*
 vector<string>* string_split(const string& str, const string& delims){
 	string::size_type pos1,pos2;
 	pos2 = str.find(delims);
@@ -115,70 +120,6 @@ string* getUrlValue(const string &key){
 
 vector<string>* getUrlValueList(const string &key){
 	return getParamValueList(getenv("QUERY_STRING"),key,"&");
-}
-
-/*
-vector<string>* getStringParamList(const string &str,const string &param_key,const string &delims){
-	shared_ptr<vector<string>> segment_list (string_split(str,delims));
-	vector<string> *paramList = new vector<string>();
-	for(string& item : *segment_list){
-		paramList.push_back(item);
-	}
-
-	return nullptr;
-
-}
-
-string getUrlParam(const char *sUrl,const char *sParam) {
-	if(sUrl == NULL || sParam == NULL || strcmp(sUrl,"")==0 || strcmp(sParam,"")==0 ){
-		LOG(INFO)<<"参数为空";
-		return "";
-	}
-	string param =  getParam(sUrl,sParam,"&");
-	LOG(INFO)<<"param:"<<param;
-	return param;
-	
-	LOG(INFO)<<"sUrl:"<<sUrl<<"    "<<"sParam:"<<sParam;
-	char *tmp_url = new char[strlen(sUrl)+1]();
-	strcpy(tmp_url,sUrl);
-	cout<<"sUrl: "<<sUrl<<"    "<<"sParam: "<<sParam<<endl;
-	const char *delims = "&";
-	const char *equal_sign = "=";
-	char *param = NULL;
-	char *key = NULL;
-	char *value = NULL;
-
-	char *tokptr_url = nullptr;	
-	char *tokptr_param = nullptr;
-
-	param = strtok_r(tmp_url,delims,&tokptr_url);
-	key = strtok_r(param,equal_sign,&tokptr_param);
-	value = strtok_r(NULL,equal_sign,&tokptr_param);
-
-	auto func_match_handler = [&](){
-		if(strcmp(key,sParam)!=0){
-			return false;
-		}
-		delete[] tmp_url;
-		tmp_url=nullptr;
-		return true;
-	};
-	if(func_match_handler()){
-		return value;
-	}
-
-	while((param = strtok_r(NULL,delims,&tokptr_url))&& param != NULL) {
-		key = strtok_r(param,equal_sign,&tokptr_param);
-		value = strtok_r(NULL,equal_sign,&tokptr_param);
-		if(func_match_handler()){
-			return value != NULL ? value : "";
-		}
-	}   
-	LOG(INFO)<<"没找到 sParam:"<<sParam;
-	delete[] tmp_url;
-	tmp_url=nullptr;
-	return "";
-
 }
   */ 
 
@@ -390,10 +331,22 @@ int main(int argc,char** argv) {
 
 	LOG(INFO)<<"argc:"<<argc;
 
+	//regex reg1("test");
+	//regex reg1("^test$");
+	//smatch sm_result;
+	//string testStr = "test";
+
+	//LOG(INFO)<<"regex test = "<<regex_match(testStr,sm_result,reg1);
+
+	wyx::WebServer webServer;
+	webServer.init();
+	webServer.start();
+
 	//redirect_test("http://www.baidu.com");
 
-	cookie_test();
+	//	cookie_test();
 
+	/*
 	printf("Content-type:text/html; charset=utf-8\n\n"); //把后面要打印的信息输出到页面
 	printf("Hello,World!!!<br>");
 	cout<<"log_path: "<<argv[0]<<endl;
@@ -401,7 +354,14 @@ int main(int argc,char** argv) {
 	LOG(INFO) << "init glog "; 
 
 	const char* queryParam = getenv("QUERY_STRING"); 
-	cout<<"QUERY_STRING: <br>"<<queryParam<<endl;
+	cout<<"QUERY_STRING: "<<queryParam<<"<br>";
+	cout<<"PATH_INFO: "<<getenv("PATH_INFO")<<"<br>";
+	cout<<"REQUEST_METHOD: "<<getenv("REQUEST_METHOD")<<"<br>";
+	//cout<<"CONTENT_LENGTH: "<<(int)*getenv("CONTENT_LENGTH")<<"<br>";
+	//cout<<"CONTENT_TYPE: "<<getenv("CONTENT_TYPE")<<"<br>";
+	cout<<"SCRIPT_FILENAME: "<<getenv("SCRIPT_FILENAME")<<"<br>";
+	cout<<"SCRIPT_NAME: "<<getenv("SCRIPT_NAME")<<"<br>";
+	*/
 
 	/*
 	cout<<"a:"<<getUrlParam(queryParam,"a")<<"<br>"<<endl;
@@ -409,35 +369,36 @@ int main(int argc,char** argv) {
 	cout<<"c:"<<getUrlParam(queryParam,"c")<<"<br>"<<endl;
 	cout<<"e:"<<getUrlParam(queryParam,"e")<<"<br>"<<endl;
 	*/
-	shared_ptr<string> param_a (getUrlValue("a"));
+
+	/*shared_ptr<string> param_a (wyx::getUrlValue("a"));
 	if(param_a!= nullptr){
 		cout<<"a:"<<*param_a<<"<br>"<<endl;
 	}else{
 		cout<<"a:nullptr"<<"<br>"<<endl;
 	}
 
-	shared_ptr<string> param_b (getUrlValue("b"));
+	shared_ptr<string> param_b (wyx::getUrlValue("b"));
 	if(param_b!= nullptr){
 		cout<<"b:"<<*param_b<<"<br>"<<endl;
 	}else{
 		cout<<"b:nullptr"<<"<br>"<<endl;
 	}
 
-	shared_ptr<string> param_c (getUrlValue("c"));
+	shared_ptr<string> param_c (wyx::getUrlValue("c"));
 	if(param_c!= nullptr){
 		cout<<"c:"<<*param_c<<"<br>"<<endl;
 	}else{
 		cout<<"c:nullptr"<<"<br>"<<endl;
 	}
 	
-	shared_ptr<string> param_e (getUrlValue("e"));
+	shared_ptr<string> param_e (wyx::getUrlValue("e"));
 	if(param_e!= nullptr){
 		cout<<"e:"<<*param_e<<"<br>"<<endl;
 	}else{
 		cout<<"e:nullptr"<<"<br>"<<endl;
 	}
 
-	shared_ptr<vector<string>> param_arr (getUrlValueList("arr"));
+	shared_ptr<vector<string>> param_arr (wyx::getUrlValueList("arr"));
 	if(param_arr!= nullptr){
 		for(auto &item : *param_arr){
 			cout<<"arr:"<<item<<"<br>"<<endl;
@@ -447,10 +408,10 @@ int main(int argc,char** argv) {
 	}
 
 	//queryParam = "a=1&b=sdjskljfasfasd&l=sdfsd&c=123&d=sadfasfa&fsdf=dsf";
-	shared_ptr<vector<string>> result(string_split(queryParam,"="));
+	shared_ptr<vector<string>> result(wyx::string_split(queryParam,"="));
 	cout<<"size:"<<result->size()<<endl;
-
 	sql_test();
 	json_test();
 	redis_test();
+	*/
 }
