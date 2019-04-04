@@ -33,3 +33,14 @@
 
 #Vim
 *.sw*
+
+#node_modules
+node_modules
+#deploy files
+static/
+#dist files
+dist/
+#MAC
+.DS_Store
+.idea
+
