@@ -8,7 +8,7 @@ module.exports = {
   dev: {
     // Paths
     assetsRoot: path.resolve(__dirname, '../dist'),
-    templateDirectory: 'templates',
+    templateDirectory: 'htdocs',
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     proxyTable: {
@@ -50,7 +50,7 @@ module.exports = {
   build: {
     // Template for index.html
     index: path.resolve(__dirname, '../dist/index.html'),
-    templateDirectory: 'templates',
+    templateDirectory: 'htdocs',
     assetsSubDirectory: process.env.SHARE_PATH ? 'res' : 'static',
     assetsPublicPath: process.env.ASSETS_PATH || '/',
     version:process.env.VERSION || 'static',
