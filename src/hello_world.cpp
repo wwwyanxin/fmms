@@ -325,7 +325,7 @@ int main(int argc,char** argv) {
 	// 初始化GLOG
 	google::InitGoogleLogging(argv[0]); 
 	// 设置日志目录
-	FLAGS_log_dir="/var/log/fmms";
+	FLAGS_log_dir="/var/log/home";
 	// 缓存小于或等于这个级别的日志信息. (-1表示不缓存; 0表示只缓存INFO级别日志; ...) 
 	FLAGS_logbuflevel = -1;
 

@@ -36,32 +36,14 @@ function getCGIRequestParams(params) {
 
 function processCGIRequest(res, cgiName, config) {
     const app = global.get('app')
-    if (!res || !res.data || !res.data.head) {
+    if (!res || !res.data) {
         app.$message({
             type: 'error',
             message: '接口请求失败'
         })
         return null
-    }
-
-    if (res.data.head.ret !== 0) {
-        let RetCode = +res.data.head.ret
-        let errorMsg = `接口${cgiName}请求失败，错误码:${RetCode}`
-        /*if (errorMsgConfig[cgiName] && errorMsgConfig[cgiName][RetCode]) {
-            errorMsg = errorMsgConfig[cgiName][RetCode]
-        }*/
-        app.$message({
-            type: 'error',
-            message: errorMsg
-        })
-
-/*        if (RetCode === -20002) {
-            window.location.href = '//mail.qq.com'
-        }*/
-
-        return null
     } else {
-        return res.data.body
+        return res.data
     }
 }
 
