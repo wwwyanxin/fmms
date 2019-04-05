@@ -8,7 +8,7 @@
     "dev": "webpack --config=build/webpack.dev.js",
     "server": "webpack-dev-server --iframe --progress --config=build/webpack.dev.js",
     "build": "webpack --config=build/webpack.prod.js",
-    "prod": "webpack --config=build/webpack.prod.js && /bin/cp -rf dist/* /var/www/fmms"
+    "prod": "webpack --config=build/webpack.prod.js && rm -rf /var/www/fmms/web/* && /bin/cp -rf dist/* /var/www/fmms/web"
   },
   "devDependencies": {
     "autoprefixer": "^9.1.5",
