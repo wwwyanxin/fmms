@@ -19,7 +19,7 @@
     import Api from '@/service/api.js'
 
     export default {
-        name: "Home",
+        name: "Member",
         data(){
             return {
                 textTest : "",
