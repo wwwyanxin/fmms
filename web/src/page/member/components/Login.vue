@@ -1,37 +1,49 @@
 <template>
     <div style="text-align: center;">
-        <el-card shadow="hover" style="width:500px;margin-top:30px;display:inline-block">
+        <el-tag style="margin: 20px;display: block;width: 100px;">{{toggle=='login'?'会员登录':'会员注册'}}</el-tag>
+        <el-card shadow="always" style="width:500px;display:inline-block">
             <div class="container" style="margin-right: 35px;">
-                <div class="register">
-                    <el-form :model="ruleForm2" size="mini" status-icon :rules="rules2" ref="ruleForm2" label-width="100px"
+                <div v-if="toggle==='register'" class="register">
+                    <el-form :model="registerForm" size="mini" status-icon :rules="registerRules" ref="registerForm" label-width="100px"
                              class="demo-ruleForm">
-                        <el-form-item label="账号" prop="account">
-                            <el-input type="text" v-model="ruleForm2.account" autocomplete="off"></el-input>
+                        <el-form-item label="账号" prop="registerAccount">
+                            <el-input type="text" v-model="registerForm.registerAccount"></el-input>
                         </el-form-item>
-
-                        <el-form-item label="密码" prop="password">
-                            <el-input type="password" v-model="ruleForm2.password" autocomplete="off"></el-input>
+                        <el-form-item label="密码" prop="registerPassword">
+                            <el-input type="password" v-model="registerForm.registerPassword"></el-input>
                         </el-form-item>
                         <el-form-item label="确认密码" prop="checkPass">
-                            <el-input type="password" v-model="ruleForm2.checkPass" autocomplete="off"></el-input>
+                            <el-input type="password" v-model="registerForm.checkPass"></el-input>
                         </el-form-item>
                         <el-form-item label="姓名" prop="name">
-                            <el-input type="text" v-model="ruleForm2.name" autocomplete="off"></el-input>
+                            <el-input type="text" v-model="registerForm.name"></el-input>
                         </el-form-item>
                         <el-form-item label="性别" prop="sex">
-                            <el-input type="text" v-model="ruleForm2.sex" autocomplete="off"></el-input>
+                            <el-radio v-model="registerForm.sex" label="Male">男</el-radio>
+                            <el-radio v-model="registerForm.sex" label="Female">女</el-radio>
                         </el-form-item>
-                        <!--<el-form-item label="年龄" prop="age" autocomplete="off">
-                            <el-input v-model.number="ruleForm2.age"></el-input>
-                        </el-form-item>-->
                         <el-form-item>
-                            <el-button type="primary" @click="submitForm('ruleForm2')">提交</el-button>
-                            <el-button @click="resetForm('ruleForm2')">重置</el-button>
+                            <el-button type="primary" @click="submitForm('registerForm')">提交</el-button>
+                            <el-button @click="resetForm('registerForm')">重置</el-button>
+                            <el-button @click="()=>toggle = 'login'" type="success" style="margin-left: 120px;">去登录</el-button>
                         </el-form-item>
                     </el-form>
                 </div>
-                <div class="login">
-
+                <div v-else-if="toggle==='login'" class="login">
+                    <el-form :model="loginForm" size="mini" status-icon :rules="loginRules" ref="loginForm" label-width="100px"
+                             class="demo-ruleForm">
+                        <el-form-item label="账号" prop="account">
+                            <el-input type="text" v-model="loginForm.account"></el-input>
+                        </el-form-item>
+                        <el-form-item label="密码" prop="password">
+                            <el-input type="password" v-model="loginForm.password"></el-input>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="submitForm('loginForm')">提交</el-button>
+                            <el-button @click="resetForm('loginForm')">重置</el-button>
+                            <el-button @click="()=>toggle = 'register'" type="success" style="margin-left: 120px;">去注册</el-button>
+                        </el-form-item>
+                    </el-form>
                 </div>
             </div>
         </el-card>
@@ -42,26 +54,26 @@
     export default {
         name: "Login",
         data() {
-            var validatePass = (rule, value, callback) => {
+            var validateRegisterPass = (rule, value, callback) => {
                 if (value === '') {
                     callback(new Error('请输入密码'));
                 } else {
-                    if (this.ruleForm2.checkPass !== '') {
-                        this.$refs.ruleForm2.validateField('checkPass');
+                    if (this.registerForm.checkPass !== '') {
+                        this.$refs.registerForm.validateField('checkPass');
                     }
                     callback();
                 }
             };
-            var validatePass2 = (rule, value, callback) => {
+            var validateRegisterPass2 = (rule, value, callback) => {
                 if (value === '') {
                     callback(new Error('请再次输入密码'));
-                } else if (value !== this.ruleForm2.password) {
+                } else if (value !== this.registerForm.password) {
                     callback(new Error('两次输入密码不一致!'));
                 } else {
                     callback();
                 }
             };
-            var validateAccount = (rule,value,callback) => {
+            var validateRegisterAccount = (rule,value,callback) => {
                 if (!value) {
                     return callback(new Error('账号不能为空'));
                 }
@@ -69,46 +81,67 @@
                     callback();
                 }, 1000);
             };
-            var validateName = (rule,value,callback) => {
+            var validateRegisterName = (rule,value,callback) => {
                 if (!value) {
                     return callback(new Error('姓名不能为空'));
                 }
                 callback();
             };
-            var validateSex = (rule,value,callback) => {
+            var validateRegisterSex = (rule,value,callback) => {
                 if (!value) {
                     return callback(new Error('性别不能为空'));
                 }
                 callback();
             };
+            var validateLoginPass = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请输入密码'));
+                }
+                callback();
+            };
+            var validateLoginAccount = (rule,value,callback) => {
+                if (!value) {
+                    return callback(new Error('请输入账号'));
+                }
+                callback();
+            };
             return {
-                ruleForm2: {
-                    age: '',
-                    account:'',
-                    password:'',
+                toggle:"login",
+                registerForm: {
+                    registerAccount:'',
+                    registerPassword:'',
                     checkPass: '',
                     name:'',
                     sex:''
 
                 },
-                rules2: {
-                    pass: [
-                        {validator: validatePass, trigger: 'blur'}
-                    ],
+                registerRules: {
                     checkPass: [
-                        {validator: validatePass2, trigger: 'blur'}
+                        {validator: validateRegisterPass2, trigger: 'blur'}
                     ],
-                    account: [
-                        {validator: validateAccount, trigger: 'blur'}
+                    registerAccount: [
+                        {validator: validateRegisterAccount, trigger: 'change'}
                     ],
-                    password: [
-                        {validator: validatePass, trigger: 'blur'}
+                    registerPassword: [
+                        {validator: validateRegisterPass, trigger: 'blur'}
                     ],
                     name: [
-                        {validator: validateName, trigger: 'blur'}
+                        {validator: validateRegisterName, trigger: 'blur'}
                     ],
                     sex: [
-                        {validator: validateSex, trigger: 'blur'}
+                        {validator: validateRegisterSex, trigger: 'blur'}
+                    ],
+                },
+                loginForm: {
+                    account:'',
+                    password:'',
+                },
+                loginRules: {
+                    account: [
+                        {validator: validateLoginAccount, trigger: 'blur'}
+                    ],
+                    password: [
+                        {validator: validateLoginPass, trigger: 'blur'}
                     ],
                 }
             };
@@ -126,7 +159,7 @@
             },
             resetForm(formName) {
                 this.$refs[formName].resetFields();
-            }
+            },
         }
     }
 </script>
