@@ -1,26 +1,38 @@
 <template>
     <div style="text-align: center;">
-        <el-card shadow="hover" style="width:400px;display: inline-block">
-            <div class="register">
-                <el-form :model="ruleForm2" status-icon :rules="rules2" ref="ruleForm2" label-width="100px"
-                         class="demo-ruleForm">
-                    <el-form-item label="密码" prop="pass">
-                        <el-input type="password" v-model="ruleForm2.pass" autocomplete="off"></el-input>
-                    </el-form-item>
-                    <el-form-item label="确认密码" prop="checkPass">
-                        <el-input type="password" v-model="ruleForm2.checkPass" autocomplete="off"></el-input>
-                    </el-form-item>
-                    <el-form-item label="年龄" prop="age">
-                        <el-input v-model.number="ruleForm2.age"></el-input>
-                    </el-form-item>
-                    <el-form-item>
-                        <el-button type="primary" @click="submitForm('ruleForm2')">提交</el-button>
-                        <el-button @click="resetForm('ruleForm2')">重置</el-button>
-                    </el-form-item>
-                </el-form>
-            </div>
-            <div class="login">
+        <el-card shadow="hover" style="width:500px;margin-top:30px;display:inline-block">
+            <div class="container" style="margin-right: 35px;">
+                <div class="register">
+                    <el-form :model="ruleForm2" size="mini" status-icon :rules="rules2" ref="ruleForm2" label-width="100px"
+                             class="demo-ruleForm">
+                        <el-form-item label="账号" prop="account">
+                            <el-input type="text" v-model="ruleForm2.pass" autocomplete="off"></el-input>
+                        </el-form-item>
 
+                        <el-form-item label="密码" prop="pass">
+                            <el-input type="password" v-model="ruleForm2.pass" autocomplete="off"></el-input>
+                        </el-form-item>
+                        <el-form-item label="确认密码" prop="checkPass">
+                            <el-input type="password" v-model="ruleForm2.checkPass" autocomplete="off"></el-input>
+                        </el-form-item>
+                        <el-form-item label="姓名" prop="name">
+                            <el-input type="text" v-model="ruleForm2.pass" autocomplete="off"></el-input>
+                        </el-form-item>
+                        <el-form-item label="性别" prop="sex">
+                            <el-input type="text" v-model="ruleForm2.pass" autocomplete="off"></el-input>
+                        </el-form-item>
+                        <el-form-item label="年龄" prop="age">
+                            <el-input v-model.number="ruleForm2.age"></el-input>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="submitForm('ruleForm2')">提交</el-button>
+                            <el-button @click="resetForm('ruleForm2')">重置</el-button>
+                        </el-form-item>
+                    </el-form>
+                </div>
+                <div class="login">
+
+                </div>
             </div>
         </el-card>
     </div>
