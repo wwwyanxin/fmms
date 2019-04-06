@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Login from '../components/Login'
-import Member from '../components/Member'
+// import Member from '../components/Member'
 
 
 Vue.use(VueRouter)
@@ -10,7 +10,9 @@ export default new VueRouter({
     routes: [
         {
             path: '/',
-            component: Member
+            component: (resolve) => {
+                require(['../components/Member'], resolve)  //路由懒加载
+            }
         },
         {
             path: '/login',
