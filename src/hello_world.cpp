@@ -17,6 +17,7 @@
 #include <cppconn/prepared_statement.h>
 #include <cppconn/metadata.h>
 #include <cppconn/exception.h>
+
 #include <json/json.h>
 
 // Redis
@@ -145,6 +146,8 @@ void sql_test(){
 		while (res->next()){
 			LOG(INFO)<<"res->next();";
 			string str_res = res->getString("name");
+			string account = res->getString("start_date");
+			cout<<"account: "<<account<<endl;
 			cout << "QueryRes: " <<str_res<<endl;
 			cout<<endl;
 		}
@@ -325,7 +328,7 @@ int main(int argc,char** argv) {
 	// 初始化GLOG
 	google::InitGoogleLogging(argv[0]); 
 	// 设置日志目录
-	FLAGS_log_dir="/var/log/home";
+	FLAGS_log_dir="/var/log/fmms";
 	// 缓存小于或等于这个级别的日志信息. (-1表示不缓存; 0表示只缓存INFO级别日志; ...) 
 	FLAGS_logbuflevel = -1;
 
@@ -410,8 +413,9 @@ int main(int argc,char** argv) {
 	//queryParam = "a=1&b=sdjskljfasfasd&l=sdfsd&c=123&d=sadfasfa&fsdf=dsf";
 	shared_ptr<vector<string>> result(wyx::string_split(queryParam,"="));
 	cout<<"size:"<<result->size()<<endl;
-	sql_test();
-	json_test();
-	redis_test();
 	*/
+	//sql_test();
+	//json_test();
+	//redis_test();
+	
 }

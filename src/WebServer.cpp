@@ -32,6 +32,7 @@ void wyx::WebServer::start(){
 			}else {
 				LOG(ERROR)<<"request_method not found";
 			}
+			break;
 		}
 	}
 
