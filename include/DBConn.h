@@ -20,7 +20,6 @@ namespace wyx{
 	class DBConn{
 		private:
 			static sql::Driver *driver;
-			static std::string test;
 		public:
 			static sql::Connection* getConnect();
 	};

@@ -10,7 +10,7 @@ CFLAGS = -std=c++11 -pthread $(DEBUG)
 LIB = -lhiredis -ljsoncpp -lmysqlcppconn -lglog -lgflags 
 OUT_PATH = /var/www/fmms/cgi-bin/
 
-hello_world.cgi: hello_world.cpp util.cpp WebServer.cpp Handler.cpp
+hello_world.cgi: hello_world.cpp util.cpp WebServer.cpp Handler.cpp DBConn.cpp
 	$(CC) $(CFLAGS) $(LIB) $^ -o $(OUT_PATH)$@
 	
 clean:

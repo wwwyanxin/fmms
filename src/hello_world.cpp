@@ -343,13 +343,13 @@ int main(int argc,char** argv) {
 
 	wyx::WebServer webServer;
 	webServer.init();
-	webServer.start();
+//	webServer.start();
 
 	//redirect_test("http://www.baidu.com");
 
 	//	cookie_test();
 
-	/*
+	
 	printf("Content-type:text/html; charset=utf-8\n\n"); //把后面要打印的信息输出到页面
 	printf("Hello,World!!!<br>");
 	cout<<"log_path: "<<argv[0]<<endl;
@@ -364,7 +364,7 @@ int main(int argc,char** argv) {
 	//cout<<"CONTENT_TYPE: "<<getenv("CONTENT_TYPE")<<"<br>";
 	cout<<"SCRIPT_FILENAME: "<<getenv("SCRIPT_FILENAME")<<"<br>";
 	cout<<"SCRIPT_NAME: "<<getenv("SCRIPT_NAME")<<"<br>";
-	*/
+	
 
 	/*
 	cout<<"a:"<<getUrlParam(queryParam,"a")<<"<br>"<<endl;
@@ -373,35 +373,36 @@ int main(int argc,char** argv) {
 	cout<<"e:"<<getUrlParam(queryParam,"e")<<"<br>"<<endl;
 	*/
 
-	/*shared_ptr<string> param_a (wyx::getUrlValue("a"));
+	wyx::RequestParam requestParam;
+	shared_ptr<string> param_a (requestParam.getRequestValue("a"));
 	if(param_a!= nullptr){
 		cout<<"a:"<<*param_a<<"<br>"<<endl;
 	}else{
 		cout<<"a:nullptr"<<"<br>"<<endl;
 	}
 
-	shared_ptr<string> param_b (wyx::getUrlValue("b"));
+	shared_ptr<string> param_b (requestParam.getRequestValue("b"));
 	if(param_b!= nullptr){
 		cout<<"b:"<<*param_b<<"<br>"<<endl;
 	}else{
 		cout<<"b:nullptr"<<"<br>"<<endl;
 	}
 
-	shared_ptr<string> param_c (wyx::getUrlValue("c"));
+	shared_ptr<string> param_c (requestParam.getRequestValue("c"));
 	if(param_c!= nullptr){
 		cout<<"c:"<<*param_c<<"<br>"<<endl;
 	}else{
 		cout<<"c:nullptr"<<"<br>"<<endl;
 	}
 	
-	shared_ptr<string> param_e (wyx::getUrlValue("e"));
+	shared_ptr<string> param_e (requestParam.getRequestValue("e"));
 	if(param_e!= nullptr){
 		cout<<"e:"<<*param_e<<"<br>"<<endl;
 	}else{
 		cout<<"e:nullptr"<<"<br>"<<endl;
 	}
 
-	shared_ptr<vector<string>> param_arr (wyx::getUrlValueList("arr"));
+	shared_ptr<vector<string>> param_arr (requestParam.getRequestValueList("arr"));
 	if(param_arr!= nullptr){
 		for(auto &item : *param_arr){
 			cout<<"arr:"<<item<<"<br>"<<endl;
@@ -410,10 +411,10 @@ int main(int argc,char** argv) {
 		cout<<"arr:nullptr"<<"<br>"<<endl;
 	}
 
-	//queryParam = "a=1&b=sdjskljfasfasd&l=sdfsd&c=123&d=sadfasfa&fsdf=dsf";
+	queryParam = "a=1&b=sdjskljfasfasd&l=sdfsd&c=123&d=sadfasfa&fsdf=dsf";
 	shared_ptr<vector<string>> result(wyx::string_split(queryParam,"="));
 	cout<<"size:"<<result->size()<<endl;
-	*/
+	
 	//sql_test();
 	//json_test();
 	//redis_test();
