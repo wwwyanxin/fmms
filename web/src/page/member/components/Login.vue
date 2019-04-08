@@ -12,15 +12,20 @@
                         <el-form-item label="密码" prop="registerPassword">
                             <el-input type="password" v-model="registerForm.registerPassword"></el-input>
                         </el-form-item>
-                        <el-form-item label="确认密码" prop="checkPass">
-                            <el-input type="password" v-model="registerForm.checkPass"></el-input>
+
+                        <el-form-item v-if="false">
                         </el-form-item>
+
+                        <el-form-item label="再次输入密码" prop="registerPassword2">
+                            <el-input type="password" v-model="registerForm.registerPassword2"></el-input>
+                        </el-form-item>
+
                         <el-form-item label="姓名" prop="name">
                             <el-input type="text" v-model="registerForm.name"></el-input>
                         </el-form-item>
                         <el-form-item label="性别" prop="sex">
-                            <el-radio v-model="registerForm.sex" label="Male">男</el-radio>
-                            <el-radio v-model="registerForm.sex" label="Female">女</el-radio>
+                            <el-radio v-model="registerForm.sex" label="male">男</el-radio>
+                            <el-radio v-model="registerForm.sex" label="female">女</el-radio>
                         </el-form-item>
                         <el-form-item>
                             <el-button type="primary" @click="submitForm('registerForm')">提交</el-button>
@@ -51,6 +56,9 @@
 </template>
 
 <script>
+    import Api from '@/service/api.js'
+    import global from '@/service/global'
+
     export default {
         name: "Login",
         data() {
@@ -59,7 +67,7 @@
                     callback(new Error('请输入密码'));
                 } else {
                     if (this.registerForm.checkPass !== '') {
-                        this.$refs.registerForm.validateField('checkPass');
+                        this.$refs.registerForm.validateField('registerPassword2');
                     }
                     callback();
                 }
@@ -67,19 +75,24 @@
             var validateRegisterPass2 = (rule, value, callback) => {
                 if (value === '') {
                     callback(new Error('请再次输入密码'));
-                } else if (value !== this.registerForm.password) {
+                } else if (value !== this.registerForm.registerPassword) {
                     callback(new Error('两次输入密码不一致!'));
                 } else {
                     callback();
                 }
             };
-            var validateRegisterAccount = (rule,value,callback) => {
+            var validateRegisterAccount = async(rule,value,callback) => {
                 if (!value) {
                     return callback(new Error('账号不能为空'));
                 }
-                setTimeout(() => {
+                const res = await Api.get('/fmms/cgi-bin/hello_world.cgi/member_register_check_account', {
+                    account:value
+                })
+                if(!res.usable){
+                    return callback(new Error('此账号已被注册'));
+                }else{
                     callback();
-                }, 1000);
+                }
             };
             var validateRegisterName = (rule,value,callback) => {
                 if (!value) {
@@ -110,20 +123,20 @@
                 registerForm: {
                     registerAccount:'',
                     registerPassword:'',
-                    checkPass: '',
+                    registerPassword2: '',
                     name:'',
                     sex:''
 
                 },
                 registerRules: {
-                    checkPass: [
-                        {validator: validateRegisterPass2, trigger: 'blur'}
-                    ],
                     registerAccount: [
-                        {validator: validateRegisterAccount, trigger: 'change'}
+                        {validator: validateRegisterAccount, trigger: 'blur'}
                     ],
                     registerPassword: [
                         {validator: validateRegisterPass, trigger: 'blur'}
+                    ],
+                    registerPassword2: [
+                        {validator: validateRegisterPass2, trigger: 'blur'}
                     ],
                     name: [
                         {validator: validateRegisterName, trigger: 'blur'}
@@ -148,9 +161,21 @@
         },
         methods: {
             submitForm(formName) {
-                this.$refs[formName].validate((valid) => {
+                this.$refs[formName].validate(async (valid) => {
                     if (valid) {
-                        alert('submit!');
+                        if(formName==='registerForm'){
+                            const res = await Api.post('/fmms/cgi-bin/hello_world.cgi/member_register', {
+                                account:this.registerForm.registerAccount,
+                                password:this.registerForm.registerPassword,
+                                name:this.registerForm.name,
+                                sex:this.registerForm.sex,
+                            })
+                        }
+                        global.get('app').$message({
+                            type: 'success',
+                            message: '注册成功'
+                        })
+                        // this.toggle = 'login'
                     } else {
                         console.log('error submit!!');
                         return false;

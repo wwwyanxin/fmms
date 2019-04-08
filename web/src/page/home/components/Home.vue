@@ -2,13 +2,9 @@
     <div>
         wyx
         <img class="img">
-        <el-row>
-            <el-button>默认按钮</el-button>
-            <el-button type="primary">主要按钮</el-button>
-            <el-button type="success">成功按钮</el-button>
-            <el-button type="info">信息按钮</el-button>
-            <el-button type="warning">警告按钮</el-button>
-            <el-button type="danger">危险按钮</el-button>
+        <el-row style="text-align: center;">
+            <el-button @click="getTest" type="success">GET测试</el-button>
+            <el-button @click="postTest" type="primary">POST测试</el-button>
         </el-row>
         <h1>{{textTest}}</h1>
     </div>
@@ -28,16 +24,26 @@
         created() {},
         beforeDestroy() {},
         async mounted(){
-            const res = await Api.get('/fmms/cgi-bin/hello_world.cgi/test', {
-                a:1,
-                b:2,
-                c:3
-            })
-            this.textTest = res;
-            console.log(res);
+
         },
         methods:{
-
+            async getTest(){
+                const res = await Api.get('/fmms/cgi-bin/hello_world.cgi/member_register_check_account', {
+                    account:'test132'
+                })
+                this.textTest = res;
+                console.log(res);
+            },
+            async postTest(){
+                const res = await Api.post('/fmms/cgi-bin/hello_world.cgi/member_register', {
+                    account:'test1',
+                    password:'password1',
+                    name:'name1',
+                    sex:'female',
+                })
+                this.textTest = res;
+                console.log(res);
+            }
         },
         computed:{
 
