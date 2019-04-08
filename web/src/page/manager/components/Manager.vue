@@ -2,7 +2,7 @@
     <div>
         {{manager}}
         <el-tabs v-model="activeName" @tab-click="handleClick">
-            <el-tab-pane lazy label="内容列表" name="contentLib">
+            <el-tab-pane lazy label="会员信息管理" name="contentLib">
                 <Contentlib @switchActive="switchActive"></Contentlib>
             </el-tab-pane>
             <el-tab-pane lazy label="媒体管理" name="mediaLib">
