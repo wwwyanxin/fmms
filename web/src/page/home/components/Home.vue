@@ -28,14 +28,14 @@
         },
         methods:{
             async getTest(){
-                const res = await Api.get('/fmms/cgi-bin/logicsvr.cgi/member_register_check_account', {
+                const res = await Api.get('member_register_check_account', {
                     account:'test132'
                 })
                 this.textTest = res;
                 console.log(res);
             },
             async postTest(){
-                const res = await Api.post('/fmms/cgi-bin/logicsvr.cgi/member_register', {
+                const res = await Api.post('member_register', {
                     account:'test1',
                     password:'password1',
                     name:'name1',

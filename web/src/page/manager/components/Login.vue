@@ -63,7 +63,7 @@
                 this.$refs[formName].validate(async (valid) => {
                     if (valid) {
                         //登录
-                        const res = await Api.post('/fmms/cgi-bin/logicsvr.cgi/manager_login', {
+                        const res = await Api.post('manager_login', {
                             account: this.loginForm.account,
                             password: this.loginForm.password,
                         })

@@ -8,7 +8,7 @@ import global from './global'
 }*/
 
 const baseHost = ''
-const cgiURL = baseHost + '/'
+const cgiURL = baseHost + '/fmms/cgi-bin/logicsvr.cgi'
 
 const CGIInstance = axios.create({
     baseURL: cgiURL
