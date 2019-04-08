@@ -1,61 +1,70 @@
 <template>
     <div>
-        wyx
-        <img class="img">
-        <el-row>
-            <el-button>默认按钮</el-button>
-            <el-button type="primary">主要按钮</el-button>
-            <el-button type="success">成功按钮</el-button>
-            <el-button type="info">信息按钮</el-button>
-            <el-button type="warning">警告按钮</el-button>
-            <el-button type="danger">危险按钮</el-button>
-        </el-row>
-        <h1>{{textTest}}</h1>
+        {{manager}}
+        <el-tabs v-model="activeName" @tab-click="handleClick">
+            <el-tab-pane lazy label="内容列表" name="contentLib">
+                <Contentlib @switchActive="switchActive"></Contentlib>
+            </el-tab-pane>
+            <el-tab-pane lazy label="媒体管理" name="mediaLib">
+                <Medialib></Medialib>
+            </el-tab-pane>
+            <el-tab-pane lazy label="推荐卡片管理" name="cardLib">
+                <Clusterlib></Clusterlib>
+            </el-tab-pane>
+            <el-tab-pane lazy label="标签库管理" name="tagLib">
+                <Taglib></Taglib>
+            </el-tab-pane>
+            <el-tab-pane lazy label="客户端预览" name="previewLib">
+                <Previewlib></Previewlib>
+            </el-tab-pane>
+            <el-tab-pane lazy label="其他工具" name="toolsLib">其他工具1222</el-tab-pane>
+        </el-tabs>
     </div>
 </template>
 
 <script>
-    import {cloneDeep,getUrl} from '@/lib/util'
+    import {cloneDeep, getUrl} from '@/lib/util'
     import Api from '@/service/api.js'
+    import global from '@/service/global'
 
     export default {
         name: "Home",
-        data(){
+        data() {
             return {
-                textTest : "",
+                manager: "",
+                activeName: 'contentLib'
             }
         },
-        created() {},
-        beforeDestroy() {},
-        async mounted(){
-            const res = await Api.get('/fmms/cgi-bin/logicsvr.cgi/test', {
-                a:1,
-                b:2,
-                c:3
-            })
-            this.textTest = res;
-            console.log(res);
+        created() {
         },
-        methods:{
-
+        beforeDestroy() {
         },
-        computed:{
-
-        }
+        async mounted() {
+            if (global.get("manager")) {
+                this.manager = global.get("manager");
+            } else {
+                global.get('app').$message({
+                    type: 'error',
+                    message: '请先登录'
+                })
+                this.$router.push("/login");
+            }
+        },
+        methods: {
+            // 切换模块
+            switchActive(name) {
+                if (name) {
+                    this.activeName = name
+                }
+            },
+            handleClick(tab, event) {
+                console.log(this.activeName)
+            },
+        },
+        computed: {}
     }
 </script>
 
 <style scoped>
-    div{
-        background: pink;
-        color:olivedrab;
-    }
-
-    .img{
-        transform:rotate(17deg);
-        background-image: url(../../../style/images/game.png);
-        width:46px;
-        height:45px;
-    }
 
 </style>

@@ -72,6 +72,8 @@
                                 type: 'success',
                                 message: '登录成功'
                             })
+                            global.set("manager",res.data);
+                            this.$router.push("/");
                         } else {
                             global.get('app').$message({
                                 type: 'error',
