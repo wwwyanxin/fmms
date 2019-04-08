@@ -28,7 +28,7 @@
         created() {},
         beforeDestroy() {},
         async mounted(){
-            const res = await Api.get('/fmms/cgi-bin/hello_world.cgi/test', {
+            const res = await Api.get('/fmms/cgi-bin/logicsvr.cgi/test', {
                 a:1,
                 b:2,
                 c:3

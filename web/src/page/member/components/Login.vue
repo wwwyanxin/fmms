@@ -85,7 +85,7 @@
                 if (!value) {
                     return callback(new Error('账号不能为空'));
                 }
-                const res = await Api.get('/fmms/cgi-bin/hello_world.cgi/member_register_check_account', {
+                const res = await Api.get('/fmms/cgi-bin/logicsvr.cgi/member_register_check_account', {
                     account:value
                 })
                 if(!res.status){
@@ -164,7 +164,7 @@
                 this.$refs[formName].validate(async (valid) => {
                     if (valid) {
                         if(formName==='registerForm'){
-                            const res = await Api.post('/fmms/cgi-bin/hello_world.cgi/member_register', {
+                            const res = await Api.post('/fmms/cgi-bin/logicsvr.cgi/member_register', {
                                 account:this.registerForm.registerAccount,
                                 password:this.registerForm.registerPassword,
                                 name:this.registerForm.name,
@@ -185,7 +185,7 @@
 
                         }else {
                             //登录
-                            const res = await Api.post('/fmms/cgi-bin/hello_world.cgi/member_login', {
+                            const res = await Api.post('/fmms/cgi-bin/logicsvr.cgi/member_login', {
                                 account:this.loginForm.account,
                                 password:this.loginForm.password,
                             })
