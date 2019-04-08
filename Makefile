@@ -19,9 +19,9 @@ OBJECTS = $(patsubst %.cpp,$(COMPILE_PATH)%.o,$(SOURCES))
 
 LIB = -lhiredis -ljsoncpp -lmysqlcppconn -lglog -lgflags 
 
-SOURCES = hello_world.cpp util.cpp WebServer.cpp Handler.cpp DBConn.cpp DAO.cpp
+SOURCES = logicsvr.cpp util.cpp WebServer.cpp Handler.cpp DBConn.cpp DAO.cpp
 
-TARGET = hello_world.cgi
+TARGET = logicsvr.cgi
 
 
 all: $(TARGET)
