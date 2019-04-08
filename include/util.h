@@ -11,17 +11,45 @@
 
 namespace wyx{
 	using namespace std;
+	
 
 	vector<string>* string_split(const string& str, const string& delims);
-	unordered_multimap<string,string>* getParamMultimap(const string &str,const string &delims);
 
-	string* getParamValue(const string &str,const string &key,const string &delims);
+	class ParamUtil{
+		private:
+			shared_ptr<unordered_multimap<string,string>> paramMultimap;
+			const string param;
+		public:
+			ParamUtil(const string &param);
 
-	vector<string>* getParamValueList(const string &str,const string &key,const string &delims);
+			unordered_multimap<string,string>* getParamMultimap(const string &delims);
 
-	string* getUrlValue(const string &key);
+			string* getParamValue(const string &key,const string &delims);
 
-	vector<string>* getUrlValueList(const string &key);
+			vector<string>* getParamValueList(const string &key,const string &delims);
+	};
+	class RequestParam{
+		private:
+			string requestParam;
+			shared_ptr<ParamUtil> paramUtil;
+
+		public:
+			RequestParam();
+			
+			string* getRequestValue(const string &key);
+
+			vector<string>* getRequestValueList(const string &key);
+	};
+
+	//unordered_multimap<string,string>* getParamMultimap(const string &str,const string &delims);
+
+	///string* getParamValue(const string &str,const string &key,const string &delims);
+
+	//vector<string>* getParamValueList(const string &str,const string &key,const string &delims);
+
+	//string* getRequestValue(const string &key);
+
+	//vector<string>* getRequestValueList(const string &key);
 
 }
 

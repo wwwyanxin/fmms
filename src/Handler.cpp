@@ -6,10 +6,23 @@ using namespace std;
 
 unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::webResource = new unordered_map<string,unordered_map<string,function<void ()>>>();
 
+void wyx::Handler::response(Json::Value &JsonRoot){
+	LOG(INFO)<<"response json: "<<endl<<JsonRoot.toStyledString();
+	printf("Content-type:application/json; charset=utf-8\n\n");
+	cout<<JsonRoot.toStyledString()<<endl;
+}
+
+void wyx::Handler::redirect(string &url){
+	LOG(INFO)<<"redirect to "<<url;
+	printf("Status: 302 Found");
+	cout << "HTTP/1.1 302 Moved Permanently\n";
+	cout << "Location: "<<url<<"\n"<<endl;
+}
+
 unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::getWebResource(){
 	(*webResource)["^/test/?$"]["GET"]=[](){
 		//printf("Content-type:text/html; charset=utf-8\n\n"); //把后面要打印的信息输出到页面
-		printf("Content-type:application/json; charset=utf-8\n\n"); //把后面要打印的信息输出到页面
+		//printf("Content-type:application/json; charset=utf-8\n\n"); //把后面要打印的信息输出到页面
 
 
 		Json::Value JsonRoot;
@@ -46,7 +59,8 @@ unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::get
 		JsonRoot["object_array"].append(JsonArr2);
 		JsonRoot["object_array"].append(JsonArr3);
 
-		cout<<JsonRoot.toStyledString()<<endl;
+		//cout<<JsonRoot.toStyledString()<<endl;
+		response(JsonRoot);
 
 
 	};	
