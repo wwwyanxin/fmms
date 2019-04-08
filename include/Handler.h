@@ -15,9 +15,14 @@ namespace wyx{
 		public:
 			static unordered_map<string,unordered_map<string,function<void ()>>>* getWebResource();
 
-			static void response(Json::Value &JsonRoot);
+			static void response(Json::Value &JsonRoot,const bool &status=true);
 
-			static void redirect(string &url);
+			static void response(const string &text);
+
+			static void response(const bool &status);
+
+			static void redirect(const string &url);
+
 
 	};
 

@@ -343,13 +343,14 @@ int main(int argc,char** argv) {
 
 	wyx::WebServer webServer;
 	webServer.init();
-//	webServer.start();
+	webServer.start();
 
 	//redirect_test("http://www.baidu.com");
 
 	//	cookie_test();
 
 	
+	/*
 	printf("Content-type:text/html; charset=utf-8\n\n"); //把后面要打印的信息输出到页面
 	printf("Hello,World!!!<br>");
 	cout<<"log_path: "<<argv[0]<<endl;
@@ -364,6 +365,7 @@ int main(int argc,char** argv) {
 	//cout<<"CONTENT_TYPE: "<<getenv("CONTENT_TYPE")<<"<br>";
 	cout<<"SCRIPT_FILENAME: "<<getenv("SCRIPT_FILENAME")<<"<br>";
 	cout<<"SCRIPT_NAME: "<<getenv("SCRIPT_NAME")<<"<br>";
+	*/
 	
 
 	/*
@@ -373,6 +375,7 @@ int main(int argc,char** argv) {
 	cout<<"e:"<<getUrlParam(queryParam,"e")<<"<br>"<<endl;
 	*/
 
+	/*
 	wyx::RequestParam requestParam;
 	shared_ptr<string> param_a (requestParam.getRequestValue("a"));
 	if(param_a!= nullptr){
@@ -418,5 +421,6 @@ int main(int argc,char** argv) {
 	//sql_test();
 	//json_test();
 	//redis_test();
+	*/
 	
 }

@@ -36,20 +36,10 @@ namespace wyx{
 		public:
 			RequestParam();
 			
-			string* getRequestValue(const string &key);
+			string getRequestValue(const string &key);
 
 			vector<string>* getRequestValueList(const string &key);
 	};
-
-	//unordered_multimap<string,string>* getParamMultimap(const string &str,const string &delims);
-
-	///string* getParamValue(const string &str,const string &key,const string &delims);
-
-	//vector<string>* getParamValueList(const string &str,const string &key,const string &delims);
-
-	//string* getRequestValue(const string &key);
-
-	//vector<string>* getRequestValueList(const string &key);
 
 }
 

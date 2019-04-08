@@ -129,8 +129,9 @@ RequestParam::RequestParam(){
 }
 
 
-string* RequestParam::getRequestValue(const string &key){
-	return this->paramUtil->getParamValue(key,"&");
+string RequestParam::getRequestValue(const string &key){
+	shared_ptr<string> result(this->paramUtil->getParamValue(key,"&"));
+	return result == nullptr ? "":*result;
 }
 
 vector<string>* RequestParam::getRequestValueList(const string &key){

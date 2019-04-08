@@ -1,30 +1,103 @@
 #include "../include/Handler.h"
+#include "../include/DAO.h"
+#include "../include/util.h"
 
 #include <glog/logging.h>
 
 using namespace std;
+using namespace wyx;
+
+
+MemberDAO memberDAO;
 
 unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::webResource = new unordered_map<string,unordered_map<string,function<void ()>>>();
 
-void wyx::Handler::response(Json::Value &JsonRoot){
-	LOG(INFO)<<"response json: "<<endl<<JsonRoot.toStyledString();
+void wyx::Handler::response(Json::Value &JsonRoot,const bool &status){
+	Json::Value JsonResult;
+	JsonResult["status"] = Json::Value(status);
+	JsonResult["data"] = JsonRoot;
+	LOG(INFO)<<"response json: "<<endl<<JsonResult.toStyledString();
 	printf("Content-type:application/json; charset=utf-8\n\n");
-	cout<<JsonRoot.toStyledString()<<endl;
+	cout<<JsonResult.toStyledString()<<endl;
 }
 
-void wyx::Handler::redirect(string &url){
+void wyx::Handler::response(const bool &status){
+	Json::Value JsonResult;
+	JsonResult["status"] = Json::Value(status);
+	LOG(INFO)<<"response status: "<<endl<<JsonResult.toStyledString();
+	printf("Content-type:application/json; charset=utf-8\n\n");
+	cout<<JsonResult.toStyledString()<<endl;
+}
+
+void wyx::Handler::response(const string &text){
+	LOG(INFO)<<"response text: "<<endl<<text;
+	printf("Content-type:text/plain; charset=utf-8\n\n");
+	cout<<text<<endl;
+}
+
+void wyx::Handler::redirect(const string &url){
 	LOG(INFO)<<"redirect to "<<url;
 	printf("Status: 302 Found");
 	cout << "HTTP/1.1 302 Moved Permanently\n";
 	cout << "Location: "<<url<<"\n"<<endl;
 }
 
+
+
 unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::getWebResource(){
+
+	(*webResource)["^/something/?$"]["POST"]=[](){
+
+	};
+
+	(*webResource)["^/member_register/?$"]["POST"]=[](){
+		LOG(INFO)<<"memeber_register[POST]";
+
+		RequestParam requestParam;
+
+		shared_ptr<Member> member = make_shared<Member>();
+		member->account=requestParam.getRequestValue("account");
+		member->password=requestParam.getRequestValue("password");
+		member->name=requestParam.getRequestValue("name");
+		member->sex=requestParam.getRequestValue("sex");
+		member->start_date=-1;
+		member->end_date=-1;
+		memberDAO.add(member.get());
+		response(true);
+	};
+
+	(*webResource)["^/member_register_check_account/?$"]["GET"]=[](){
+		LOG(INFO)<<"member_register_check_account";
+
+		RequestParam requestParam;
+		string account = requestParam.getRequestValue("account");
+		shared_ptr<Member> member(memberDAO.get(account));
+		response(member?false:true);
+	};
+
+	(*webResource)["^/member_login/?$"]["POST"]=[](){
+		LOG(INFO)<<"member_log";
+
+		RequestParam requestParam;
+		string account = requestParam.getRequestValue("account");
+		string password = requestParam.getRequestValue("password");
+
+		shared_ptr<Member> member(memberDAO.get(account,password));
+		if(member){
+			Json::Value JsonRoot;
+			JsonRoot["id"] = Json::Value(member->id);
+			JsonRoot["name"] = Json::Value(member->name);
+			JsonRoot["account"] = Json::Value(member->account);
+			JsonRoot["password"] = Json::Value(member->password);
+			JsonRoot["sex"] = Json::Value(member->sex);
+
+			response(JsonRoot);
+		}else{
+			response(false);
+		}
+	};
+
 	(*webResource)["^/test/?$"]["GET"]=[](){
-		//printf("Content-type:text/html; charset=utf-8\n\n"); //把后面要打印的信息输出到页面
-		//printf("Content-type:application/json; charset=utf-8\n\n"); //把后面要打印的信息输出到页面
-
-
 		Json::Value JsonRoot;
 		JsonRoot["age"] = Json::Value(22);
 		// 写入浮点型数字
@@ -59,11 +132,10 @@ unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::get
 		JsonRoot["object_array"].append(JsonArr2);
 		JsonRoot["object_array"].append(JsonArr3);
 
-		//cout<<JsonRoot.toStyledString()<<endl;
 		response(JsonRoot);
-
-
 	};	
+
+
 	return webResource;
 }
 
