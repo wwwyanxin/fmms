@@ -88,7 +88,7 @@
                 const res = await Api.get('/fmms/cgi-bin/hello_world.cgi/member_register_check_account', {
                     account:value
                 })
-                if(!res.usable){
+                if(!res.status){
                     return callback(new Error('此账号已被注册'));
                 }else{
                     callback();
@@ -170,12 +170,39 @@
                                 name:this.registerForm.name,
                                 sex:this.registerForm.sex,
                             })
+                            if(res.status){
+                                global.get('app').$message({
+                                    type: 'success',
+                                    message: '注册成功'
+                                })
+                                this.toggle = 'login'
+                            }else {
+                                global.get('app').$message({
+                                    type: 'error',
+                                    message: '注册失败，请重试'
+                                })
+                            }
+
+                        }else {
+                            //登录
+                            const res = await Api.post('/fmms/cgi-bin/hello_world.cgi/member_login', {
+                                account:this.loginForm.account,
+                                password:this.loginForm.password,
+                            })
+                            if(res.status){
+                                global.get('app').$message({
+                                    type: 'success',
+                                    message: '登录成功'
+                                })
+                            }else{
+                                global.get('app').$message({
+                                    type: 'error',
+                                    message: '账号或密码错误'
+                                })
+                            }
+
                         }
-                        global.get('app').$message({
-                            type: 'success',
-                            message: '注册成功'
-                        })
-                        // this.toggle = 'login'
+
                     } else {
                         console.log('error submit!!');
                         return false;
