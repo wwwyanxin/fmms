@@ -60,7 +60,7 @@
             </el-table>
         </div>
         <div class="edit">
-            <el-dialog title="编辑卡片" :visible.sync="dialogVisible" width="55%">
+            <el-dialog title="编辑会员" :visible.sync="dialogVisible" width="55%">
                 <el-form>
                     <el-form-item label="姓名">
                         <el-input v-model="form.name" clearable
@@ -113,7 +113,29 @@
                 this.form = cloneDeep(this.memberList[index])
                 this.dialogVisible = true
             },
+            checkItem(form, field, errorMessage) {
+                if (!form[field]) {
+                    global.get('app').$message({
+                        type: 'error',
+                        message: errorMessage
+                    })
+                    return false;
+                } else {
+                    return true;
+                }
+            },
+            checkForm() {
+                if (this.checkItem(this.form, 'name', '未填写姓名')
+                ) {
+                    return true;
+                } else {
+                    return false;
+                }
+            },
             async formConfirm(){
+                if (!this.checkForm()) {
+                    return
+                }
                 await Api.post("member_update",this.form);
                 this.pullMemberList();
                 this.dialogVisible = false

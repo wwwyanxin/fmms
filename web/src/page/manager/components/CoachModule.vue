@@ -1,5 +1,8 @@
 <template>
     <div>
+        <div class="add">
+            <el-button type="warning" size="mini" @click="handleAdd()">添加教练</el-button>
+        </div>
         <div class="table">
             <el-table
                     :data="coachList"
@@ -63,7 +66,7 @@
             </el-table>
         </div>
         <div class="edit">
-            <el-dialog title="编辑卡片" :visible.sync="dialogVisible" width="55%">
+            <el-dialog title="编辑教练" :visible.sync="dialogVisible" width="55%">
                 <el-form>
                     <el-form-item label="姓名">
                         <el-input v-model="form.name" clearable
@@ -107,30 +110,61 @@
 
     export default {
         name: "CoachModule",
-        data(){
+        data() {
             return {
-                dialogVisible:false,
-                coachList:[],
-                form:{}
+                dialogVisible: false,
+                model: '',  // add,update
+                coachList: [],
+                form: {}
             }
         },
-        mounted(){
+        mounted() {
             this.pullCoachList();
         },
-        methods:{
-            async pullCoachList(){
+        methods: {
+            async pullCoachList() {
                 const res = await Api.get("coach_list");
                 this.coachList = res.data.coachList;
             },
-            dateFormat(dateTime){
+            dateFormat(dateTime) {
                 return dayjs(dateTime * 1000).format('YYYY年MM月DD日')
             },
             handleEdit(index, row) {
                 this.form = cloneDeep(this.coachList[index])
+                this.model = 'update';
                 this.dialogVisible = true
             },
-            async formConfirm(){
-                await Api.post("coach_update",this.form);
+            handleAdd() {
+                this.form = {status: 'on_work'};
+                this.model = 'add';
+                this.dialogVisible = true;
+            },
+            checkItem(form, field, errorMessage) {
+                if (!form[field]) {
+                    global.get('app').$message({
+                        type: 'error',
+                        message: errorMessage
+                    })
+                    return false;
+                } else {
+                    return true;
+                }
+            },
+            checkForm() {
+                if (this.checkItem(this.form, 'name', '未填写姓名') &&
+                    this.checkItem(this.form, 'sex', '未选择性别') &&
+                    this.checkItem(this.form, 'introduction', '请填写简介')
+                ) {
+                    return true;
+                } else {
+                    return false;
+                }
+            },
+            async formConfirm() {
+                if (!this.checkForm()) {
+                    return
+                }
+                await Api.post(`coach_${this.model}`, this.form);
                 this.pullCoachList();
                 this.dialogVisible = false
             }
