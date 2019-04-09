@@ -90,7 +90,7 @@
     import dayjs from 'dayjs'
 
     export default {
-        name: "MemberInfo",
+        name: "MemberModule",
         data(){
             return {
                 dialogVisible:false,
@@ -115,7 +115,8 @@
             },
             async formConfirm(){
                 await Api.post("member_update",this.form);
-                this.dialogVisible = true
+                this.pullMemberList();
+                this.dialogVisible = false
             }
         }
     }

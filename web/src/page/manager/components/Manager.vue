@@ -5,10 +5,10 @@
         </div>
         <el-tabs v-model="activeName" type="card">
             <el-tab-pane lazy label="会员信息管理" name="contentLib">
-                <MemberInfo></MemberInfo>
+                <MemberModule></MemberModule>
             </el-tab-pane>
             <el-tab-pane lazy label="教练管理" name="mediaLib">
-                教练管理
+                <CoachModule></CoachModule>
             </el-tab-pane>
             <el-tab-pane lazy label="场馆管理" name="cardLib">
                 场馆管理
@@ -24,11 +24,12 @@
     import {cloneDeep, getUrl} from '@/lib/util'
     import Api from '@/service/api.js'
     import global from '@/service/global'
-    import MemberInfo from "./MemberInfo";
+    import MemberModule from "./MemberModule";
+    import CoachModule from "./CoachModule";
 
     export default {
         name: "Home",
-        components: {MemberInfo},
+        components: {CoachModule, MemberModule},
         data() {
             return {
                 manager: "",
