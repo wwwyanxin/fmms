@@ -1,6 +1,6 @@
 <template>
     <div style="text-align: center;">
-        <el-tag style="margin: 20px;display: block;width: 100px;">{{'管理员登录'}}</el-tag>
+        <el-tag type="success" style="margin: 20px;display: block;width: 100px;">{{'管理员登录'}}</el-tag>
         <el-card shadow="always" style="width:500px;display:inline-block">
             <div class="container" style="margin-right: 35px;">
                 <div class="login">

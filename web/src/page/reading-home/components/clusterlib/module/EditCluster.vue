@@ -5,10 +5,10 @@
                 <el-input v-model="form.name" auto-complete="off" clearable
                           style="max-width:300px;"></el-input>
             </el-form-item>
-            <el-form-item  label="关联1级标签">
+            <el-form-item label="关联1级标签">
                 <SearchAppend :info="searchTag1"></SearchAppend>
             </el-form-item>
-            <el-form-item  label="推荐文章数量">
+            <el-form-item label="推荐文章数量">
                 <template slot-scope="scope">
                     <el-input-number
                             style="width: 88px;"
@@ -20,7 +20,7 @@
                     ></el-input-number>
                 </template>
             </el-form-item>
-            <el-form-item  label="状态设置为">
+            <el-form-item label="状态设置为">
                 <el-radio-group v-model="form.flag" size="small">
                     <!--未发布状态目前字段是空的-->
                     <el-radio-button :label="0">未发布</el-radio-button>
@@ -44,12 +44,12 @@
         name: "EditCluster",
         components: {SearchAppend},
         props: {
-            info:{
-                taglist:{
-                    taglist1:[],
+            info: {
+                taglist: {
+                    taglist1: [],
                 },
-                selected:{
-                    tagSelect1:[],
+                selected: {
+                    tagSelect1: [],
                 },
                 id: '',
                 name: '',
@@ -65,25 +65,25 @@
         data() {
             return {
                 dialogVisible: false,
-                form:{
-                   name: '',
+                form: {
+                    name: '',
                     flag: '',
                     sortid: '',
                     articlenum: '',
                 },
 
-                searchTag1:{
-                    placeholder:'查找标签',
-                    tagType:'warning',
-                    selected:[],
+                searchTag1: {
+                    placeholder: '查找标签',
+                    tagType: 'warning',
+                    selected: [],
                     allDatas: [],
                 },
             }
         },
-        mounted(){
+        mounted() {
             this.updateInfo()
         },
-        watch:{
+        watch: {
             info: {
                 deep: true,
                 handler: function () {
@@ -100,17 +100,17 @@
                     return
                 }
                 this.$bus.$emit('clusterHandler', {
-                    func:'sendUpdateCluster',
-                    args:{
+                    func: 'sendUpdateCluster',
+                    args: {
                         func: 8,
-                        updateclusterinforeq:JSON.stringify({
-                            clusterinfo:{
-                                id:this.info.id,
-                                name:this.form.name,
-                                flag:this.form.flag,
-                                sortid:this.info.sortid,
-                                articlenum:this.info.articlenum,
-                                tags:this.xmtagsHandler(),
+                        updateclusterinforeq: JSON.stringify({
+                            clusterinfo: {
+                                id: this.info.id,
+                                name: this.form.name,
+                                flag: this.form.flag,
+                                sortid: this.info.sortid,
+                                articlenum: this.info.articlenum,
+                                tags: this.xmtagsHandler(),
                             }
                         })
                     },
@@ -126,7 +126,7 @@
                         message: '名称长度不应超过5'
                     });
                     return false
-                }else if(this.form.name.length < 1){
+                } else if (this.form.name.length < 1) {
                     this.$message({
                         message: '名称不能为空',
                         type: 'error'
@@ -135,33 +135,33 @@
                 }
                 return true
             },
-            updateInfo(){
+            updateInfo() {
                 this.form = this.info ? this.info : ''
                 this.searchTag1.selected = cloneDeep(this.info.selected.tagSelect1 || [])
                 this.searchTag1.allDatas = []
-                this.info.taglist.taglist1.map(item=>{
+                this.info.taglist.taglist1.map(item => {
                     this.searchTag1.allDatas.push({
-                        id:item.id,
-                        value:item.name
+                        id: item.id,
+                        value: item.name
                     })
                 })
             },
             xmtagsHandler() {
-                let selected2Ids = (selected) =>{
+                let selected2Ids = (selected) => {
                     if (!selected) {
                         return []
                     }
                     let tagIds = [];
-                    selected.map(item=>{
+                    selected.map(item => {
                         tagIds.push(item.id)
                     })
                     return tagIds
                 }
 
-                let xmtags = {leveldatas:[]}
+                let xmtags = {leveldatas: []}
                 xmtags.leveldatas.push({
-                    level:1,
-                    tagids:selected2Ids(this.searchTag1.selected)
+                    level: 1,
+                    tagids: selected2Ids(this.searchTag1.selected)
                 })
                 return xmtags
             },

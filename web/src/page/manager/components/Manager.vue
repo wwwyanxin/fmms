@@ -1,23 +1,21 @@
 <template>
     <div>
-        {{manager}}
-        <el-tabs v-model="activeName" @tab-click="handleClick">
+        <div style="position: fixed;right: 20px;top:3px;">
+            <el-button type="danger" plain >{{manager.account}}</el-button>
+        </div>
+        <el-tabs v-model="activeName" type="card">
             <el-tab-pane lazy label="会员信息管理" name="contentLib">
-                <Contentlib @switchActive="switchActive"></Contentlib>
+                <MemberInfo></MemberInfo>
             </el-tab-pane>
-            <el-tab-pane lazy label="媒体管理" name="mediaLib">
-                <Medialib></Medialib>
+            <el-tab-pane lazy label="教练管理" name="mediaLib">
+                教练管理
             </el-tab-pane>
-            <el-tab-pane lazy label="推荐卡片管理" name="cardLib">
-                <Clusterlib></Clusterlib>
+            <el-tab-pane lazy label="场馆管理" name="cardLib">
+                场馆管理
             </el-tab-pane>
-            <el-tab-pane lazy label="标签库管理" name="tagLib">
-                <Taglib></Taglib>
+            <el-tab-pane lazy label="课程管理" name="tagLib">
+                课程管理
             </el-tab-pane>
-            <el-tab-pane lazy label="客户端预览" name="previewLib">
-                <Previewlib></Previewlib>
-            </el-tab-pane>
-            <el-tab-pane lazy label="其他工具" name="toolsLib">其他工具1222</el-tab-pane>
         </el-tabs>
     </div>
 </template>
@@ -26,20 +24,26 @@
     import {cloneDeep, getUrl} from '@/lib/util'
     import Api from '@/service/api.js'
     import global from '@/service/global'
+    import MemberInfo from "./MemberInfo";
 
     export default {
         name: "Home",
+        components: {MemberInfo},
         data() {
             return {
                 manager: "",
                 activeName: 'contentLib'
             }
         },
-        created() {
-        },
-        beforeDestroy() {
-        },
+        created() {},
+        beforeDestroy() {},
         async mounted() {
+            // 测试默认登录账号
+            global.set("manager",{
+                account:'wyx',
+                id:'1'
+            })
+
             if (global.get("manager")) {
                 this.manager = global.get("manager");
             } else {
@@ -51,7 +55,7 @@
             }
         },
         methods: {
-            // 切换模块
+        /*    // 切换模块
             switchActive(name) {
                 if (name) {
                     this.activeName = name
@@ -59,7 +63,7 @@
             },
             handleClick(tab, event) {
                 console.log(this.activeName)
-            },
+            },*/
         },
         computed: {}
     }
