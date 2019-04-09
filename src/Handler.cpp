@@ -3,12 +3,15 @@
 #include "../include/util.h"
 
 #include <glog/logging.h>
+#include <time.h>
+
 
 using namespace std;
 using namespace wyx;
 
 
 MemberDAO memberDAO;
+ManagerDAO managerDAO;
 
 unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::webResource = new unordered_map<string,unordered_map<string,function<void ()>>>();
 
@@ -60,9 +63,31 @@ unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::get
 		member->password=requestParam.getRequestValue("password");
 		member->name=requestParam.getRequestValue("name");
 		member->sex=requestParam.getRequestValue("sex");
-		member->start_date=-1;
+		//获取系统当前时间戳
+		time_t now_time = time(nullptr);
+		member->start_date=now_time;
 		member->end_date=-1;
 		memberDAO.add(member.get());
+		response(true);
+	};
+
+	(*webResource)["^/member_update/?$"]["POST"]=[](){
+		LOG(INFO)<<"memeber_update[POST]";
+
+		RequestParam requestParam;
+
+		shared_ptr<Member> member = make_shared<Member>();
+
+		member->id=stoi(requestParam.getRequestValue("id"));
+		member->account=requestParam.getRequestValue("account");
+		member->password=requestParam.getRequestValue("password");
+		member->name=requestParam.getRequestValue("name");
+		member->sex=requestParam.getRequestValue("sex");
+		member->start_date=stoi(requestParam.getRequestValue("start_date"));
+		member->end_date=stoi(requestParam.getRequestValue("end_date"));
+
+		memberDAO.update(member.get());
+
 		response(true);
 	};
 
@@ -76,7 +101,7 @@ unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::get
 	};
 
 	(*webResource)["^/member_login/?$"]["POST"]=[](){
-		LOG(INFO)<<"member_log";
+		LOG(INFO)<<"member_login";
 
 		RequestParam requestParam;
 		string account = requestParam.getRequestValue("account");
@@ -90,6 +115,48 @@ unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::get
 			JsonRoot["account"] = Json::Value(member->account);
 			JsonRoot["password"] = Json::Value(member->password);
 			JsonRoot["sex"] = Json::Value(member->sex);
+			JsonRoot["start_date"] = Json::Value(member->start_date);
+			JsonRoot["end_date"] = Json::Value(member->end_date);
+
+			response(JsonRoot);
+		}else{
+			response(false);
+		}
+	};
+
+	(*webResource)["^/member_list/?$"]["GET"]=[](){
+		LOG(INFO)<<"member_list";
+
+		shared_ptr<vector<shared_ptr<Member>>> memberList(memberDAO.list());
+		Json::Value JsonRoot;
+		for(auto &member : *memberList){
+			Json::Value JsonMember;
+			JsonMember["id"] = Json::Value(member->id);
+			JsonMember["name"] = Json::Value(member->name);
+			JsonMember["account"] = Json::Value(member->account);
+			JsonMember["password"] = Json::Value(member->password);
+			JsonMember["sex"] = Json::Value(member->sex);
+			JsonMember["start_date"] = Json::Value(member->start_date);
+			JsonMember["end_date"] = Json::Value(member->end_date);
+
+			JsonRoot["memberList"].append(JsonMember);
+		}
+
+		response(JsonRoot);
+	};
+
+	(*webResource)["^/manager_login/?$"]["POST"]=[](){
+		LOG(INFO)<<"manager_login";
+
+		RequestParam requestParam;
+		string account = requestParam.getRequestValue("account");
+		string password = requestParam.getRequestValue("password");
+
+		shared_ptr<Manager> manager(managerDAO.get(account,password));
+		if(manager){
+			Json::Value JsonRoot;
+			JsonRoot["id"] = Json::Value(manager->id);
+			JsonRoot["account"] = Json::Value(manager->account);
 
 			response(JsonRoot);
 		}else{

@@ -17,7 +17,7 @@ namespace wyx{
 			Member* get(int &id);
 			Member* get(string &account);
 			Member* get(string &account,string &password);
-			vector<Member*>* listMembers();
+			vector<shared_ptr<Member>>* list();
 	};
 
 	class ManagerDAO{
