@@ -19,7 +19,7 @@ OBJECTS = $(patsubst %.cpp,$(COMPILE_PATH)%.o,$(SOURCES))
 
 LIB = -lhiredis -ljsoncpp -lmysqlcppconn -lglog -lgflags 
 
-SOURCES = logicsvr.cpp util.cpp WebServer.cpp Handler.cpp DBConn.cpp DAO.cpp
+SOURCES = logicsvr.cpp util.cpp WebServer.cpp Handler.cpp DBConn.cpp DAO.cpp Model.cpp
 
 TARGET = logicsvr.cgi
 

@@ -15,10 +15,6 @@ namespace wyx{
 
 	vector<string>* string_split(const string& str, const string& delims);
 
-	string* GbkToUtf8(const string& str);
-
-	string* Utf8ToGbk(const string& str);
-
 	string gb2312_to_utf8(std::string const &strGb2312);
 
 	string utf8_to_gb2312(std::string const &strUtf8);

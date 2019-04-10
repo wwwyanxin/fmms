@@ -12,6 +12,9 @@ using namespace wyx;
 
 MemberDAO memberDAO;
 ManagerDAO managerDAO;
+CoachDAO coachDAO;
+VenueDAO venueDAO;
+VenueTypeDAO venueTypeDAO;
 
 unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::webResource = new unordered_map<string,unordered_map<string,function<void ()>>>();
 
@@ -162,6 +165,132 @@ unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::get
 		}else{
 			response(false);
 		}
+	};
+
+	(*webResource)["^/coach_list/?$"]["GET"]=[](){
+		LOG(INFO)<<"coach_list";
+
+		shared_ptr<vector<shared_ptr<Coach>>> coachList(coachDAO.list());
+		Json::Value JsonRoot;
+		for(auto &item : *coachList){
+			Json::Value JsonList;
+			JsonList["id"] = Json::Value(item->id);
+			JsonList["name"] = Json::Value(item->name);
+			JsonList["sex"] = Json::Value(item->sex);
+			JsonList["entry_date"] = Json::Value(item->entry_date);
+			JsonList["introduction"] = Json::Value(item->introduction);
+			JsonList["status"] = Json::Value(item->status);
+
+			JsonRoot["coachList"].append(JsonList);
+		}
+
+		response(JsonRoot);
+	};
+
+	(*webResource)["^/coach_add/?$"]["POST"]=[](){
+		LOG(INFO)<<"coach_add[POST]";
+
+		RequestParam requestParam;
+
+		shared_ptr<Coach> coach = make_shared<Coach>();
+		coach->name = requestParam.getRequestValue("name");
+		coach->sex = requestParam.getRequestValue("sex");
+		coach->entry_date = time(nullptr); //系统当前时间戳
+		coach->introduction = requestParam.getRequestValue("introduction");
+		coach->status = requestParam.getRequestValue("status");
+
+		coachDAO.add(coach.get());
+		response(true);
+	};
+
+	(*webResource)["^/coach_update/?$"]["POST"]=[](){
+		LOG(INFO)<<"coach_update[POST]";
+
+		RequestParam requestParam;
+
+		shared_ptr<Coach> coach = make_shared<Coach>();
+		coach->id = stoi(requestParam.getRequestValue("id"));
+		coach->name = requestParam.getRequestValue("name");
+		coach->sex = requestParam.getRequestValue("sex");
+		coach->entry_date = stoi(requestParam.getRequestValue("entry_date"));
+		coach->introduction = requestParam.getRequestValue("introduction");
+		coach->status = requestParam.getRequestValue("status");
+
+		coachDAO.update(coach.get());
+		response(true);
+	};
+
+	(*webResource)["^/venue_list/?$"]["GET"]=[](){
+		LOG(INFO)<<"venue_list";
+
+		shared_ptr<vector<shared_ptr<Venue>>> venueList(venueDAO.list());
+		Json::Value JsonRoot;
+		for(auto &item : *venueList){
+			Json::Value JsonList;
+			JsonList["id"] = Json::Value(item->id);
+			JsonList["name"] = Json::Value(item->name);
+			JsonList["capacity"] = Json::Value(item->capacity);
+			JsonList["status"] = Json::Value(item->status);
+
+			Json::Value JsonType;
+			JsonType["id"] = Json::Value(item->venue_type->id);
+			JsonType["type"] = Json::Value(item->venue_type->type);
+			
+			JsonList["venue_type"] = JsonType;
+
+			JsonRoot["venueList"].append(JsonList);
+		}
+
+		response(JsonRoot);
+	};
+
+	(*webResource)["^/venue_add/?$"]["POST"]=[](){
+		LOG(INFO)<<"venue_add[POST]";
+
+		RequestParam requestParam;
+
+		shared_ptr<Venue> venue = make_shared<Venue>();
+		venue->name = requestParam.getRequestValue("name");
+		venue->capacity = stoi(requestParam.getRequestValue("capacity"));
+		venue->status = requestParam.getRequestValue("status");
+		venue->venue_type->id = stoi(requestParam.getRequestValue("venue_type[id]"));
+
+		venueDAO.add(venue.get());
+		response(true);
+	};
+
+	(*webResource)["^/venue_update/?$"]["POST"]=[](){
+		LOG(INFO)<<"venue update[POST]";
+
+		RequestParam requestParam;
+
+		shared_ptr<Venue> venue = make_shared<Venue>();
+		venue->id = stoi(requestParam.getRequestValue("id"));
+		venue->name = requestParam.getRequestValue("name");
+		venue->capacity = stoi(requestParam.getRequestValue("capacity"));
+		venue->status = requestParam.getRequestValue("status");
+		venue->venue_type->id = stoi(requestParam.getRequestValue("venue_type[id]"));
+
+		venueDAO.update(venue.get());
+		response(true);
+	};
+
+	(*webResource)["^/venue_type_list/?$"]["GET"]=[](){
+		LOG(INFO)<<"venue_type_list[GET]";
+
+		RequestParam requestParam;
+
+		shared_ptr<vector<shared_ptr<VenueType>>> venueTypeList(venueTypeDAO.list());
+		Json::Value JsonRoot;
+		for(auto &item : *venueTypeList){
+			Json::Value JsonList;
+			JsonList["id"] = Json::Value(item->id);
+			JsonList["type"] = Json::Value(item->type);
+
+			JsonRoot["typeList"].append(JsonList);
+		}
+
+		response(JsonRoot);
 	};
 
 	(*webResource)["^/test/?$"]["GET"]=[](){

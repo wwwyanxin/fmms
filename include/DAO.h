@@ -24,6 +24,28 @@ namespace wyx{
 		public:
 			Manager* get(string &account,string &password);
 	};
+
+	class CoachDAO{
+		public:
+			void add(Coach *coach);
+			void update(Coach *coach);
+			Coach* get(int &id);
+			vector<shared_ptr<Coach>>* list();
+	};
+
+	class VenueTypeDAO{
+		public:
+			VenueType* get(int &id);
+			vector<shared_ptr<VenueType>>* list();
+	};
+
+	class VenueDAO{
+		public:
+			void add(Venue *Venue);
+			void update(Venue *Venue);
+			Venue* get(int &id);
+			vector<shared_ptr<Venue>>* list();
+	};
 }
 
 

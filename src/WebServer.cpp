@@ -19,25 +19,25 @@ void wyx::WebServer::start(){
 		string path_info = getenv("PATH_INFO");
 		string request_method = getenv("REQUEST_METHOD");
 
-		LOG(INFO)<<"res_iter[]="<<res_iter->first;
-		LOG(INFO)<<"path_info="<<path_info;
-
 		//匹配路径
 		if(std::regex_match(path_info,sm_result,regex_method)==true){
-			LOG(INFO)<<"request_method="<<request_method;
+			LOG(INFO)<<"find res_iter[]="<<res_iter->first;
+			LOG(INFO)<<"path_info="<<path_info;
+
 			//判断method是否定义(GET/POST等)
 			if(res_iter->second.count(request_method)>0){
 				//调用相应的方法GET/POST等
+				LOG(INFO)<<"find request_method="<<request_method;
 				res_iter->second[request_method]();
 			}else {
-				LOG(ERROR)<<"request_method not found";
+				LOG(ERROR)<<"request_method not found:"<<request_method;
 			}
 			break;
 		}
 	}
 
 	if(res_iter == resource->end()){
-		LOG(ERROR)<<"path not found";
+		LOG(ERROR)<<"path not found:"<<getenv("PATH_INFO");
 	}
 }
 
