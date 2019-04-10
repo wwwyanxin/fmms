@@ -11,7 +11,7 @@
                 <CoachModule></CoachModule>
             </el-tab-pane>
             <el-tab-pane lazy label="场馆管理" name="cardLib">
-                场馆管理
+                <VenueModule></VenueModule>
             </el-tab-pane>
             <el-tab-pane lazy label="课程管理" name="tagLib">
                 课程管理
@@ -26,10 +26,11 @@
     import global from '@/service/global'
     import MemberModule from "./MemberModule";
     import CoachModule from "./CoachModule";
+    import VenueModule from "./VenueModule";
 
     export default {
         name: "Home",
-        components: {CoachModule, MemberModule},
+        components: {VenueModule, CoachModule, MemberModule},
         data() {
             return {
                 manager: "",
