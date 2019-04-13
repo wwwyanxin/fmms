@@ -513,3 +513,103 @@ vector<shared_ptr<Venue>>* VenueDAO::list(){
 	return venueList;
 }
 
+void CourseDAO::add(Course * course){
+	string sql_str="insert into course(`start_date`,`start_hour`,`price`,`capacity`,`type`,`venue_id`,`coach_id`) values(?,?,?,?,?,?,?);";
+	shared_ptr<sql::Connection> conn;
+	shared_ptr<sql::PreparedStatement> pstmt;
+	shared_ptr<sql::ResultSet> res;
+
+	try{
+		conn.reset(DBConn::getConnect());
+		pstmt.reset(conn->prepareStatement(sql_str));
+
+		pstmt->setInt(1,course->start_date);
+		pstmt->setString(2,course->start_hour);
+		pstmt->setDouble(3,course->price);
+		pstmt->setInt(4,course->capacity);
+		pstmt->setString(5,course->type);
+		pstmt->setInt(6,course->venue->id);
+		pstmt->setInt(7,course->coach->id);
+
+		pstmt->executeUpdate();
+
+		LOG(INFO)<<"sql execute success";
+
+	} catch (sql::SQLException& e) {
+		daoExceptionCatch(e);
+	}
+	return;
+}
+
+void CourseDAO::addWeek(vector<shared_ptr<Course>> *courseList){
+	for(auto &item : *courseList){
+		this->add(item.get());
+	}
+}
+
+vector<shared_ptr<Course>>* CourseDAO::getWeek(int start_date){
+	auto courseList = new vector<shared_ptr<Course>>;
+	string sql_str="select  \
+		course.*, \
+		coach.id as `coach.id` , \
+		coach.name as `coach.name` , \
+		coach.sex as `coach.sex`, \
+		coach.`status` as `coach.status`, \
+		coach.introduction as `coach.introduction`, \
+		coach.entry_date as `coach.entry_date`, \
+		venue_type.id as `venue_type.id`, \
+		venue_type.type as `venue_type.type`, \
+		venue.id as `venue.id`, \
+		venue.`status` as `venue.status`, \
+		venue.`name` as `venue.name`, \
+		venue.capacity as `venue.capacity`, \
+		venue.type_id as `venue.type_id` \
+		from course,venue,venue_type,coach \
+		where start_date=? and course.venue_id = venue.id and course.coach_id = coach.id and venue.type_id = venue_type.id;";
+	shared_ptr<sql::Connection> conn;
+	shared_ptr<sql::PreparedStatement> pstmt;
+	shared_ptr<sql::ResultSet> res;
+
+	try{
+		conn.reset(DBConn::getConnect());
+		pstmt.reset(conn->prepareStatement(sql_str));
+
+		pstmt->setInt(1,start_date);
+
+		res.reset(pstmt->executeQuery());
+
+		LOG(INFO)<<"sql execute success";
+
+		while(res->next()){
+			auto course = make_shared<Course>();
+			course->id = res->getInt("id");
+			course->start_date = res->getInt("start_date");
+			course->start_hour = res->getString("start_hour");
+			course->price = res->getDouble("price");
+			course->capacity = res->getInt("capacity");
+			course->type = res->getString("type");
+
+			course->venue->id = res->getInt("venue.id");
+			course->venue->name = res->getString("venue.name");
+			course->venue->capacity = res->getInt("venue.capacity");
+			course->venue->status = res->getString("venue.status");
+
+			course->venue->venue_type->id = res->getInt("venue_type.id");
+			course->venue->venue_type->type = res->getString("venue_type.type");
+
+			course->coach->id = res->getInt("coach.id");
+			course->coach->name = res->getString("coach.name");
+			course->coach->entry_date = res->getInt("coach.entry_date");
+			course->coach->status = res->getString("coach.status");
+			course->coach->sex = res->getString("coach.sex");
+			course->coach->introduction = res->getString("coach.introduction");
+
+
+			courseList->push_back(course);
+		}
+
+	} catch (sql::SQLException& e) {
+		daoExceptionCatch(e);
+	}
+	return courseList;
+}

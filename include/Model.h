@@ -50,7 +50,22 @@ namespace wyx{
 
 			Venue();
 	};
+
+	class Course{
+		public:
+			int id;
+			int start_date;
+			string start_hour;
+			double price;
+			int capacity;
+			string type;
+			shared_ptr<Venue> venue;
+			shared_ptr<Coach> coach;
+
+			Course();
+	};
 }
+
 
 
 

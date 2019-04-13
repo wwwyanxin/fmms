@@ -46,6 +46,13 @@ namespace wyx{
 			Venue* get(int &id);
 			vector<shared_ptr<Venue>>* list();
 	};
+
+	class CourseDAO{
+		public:
+			void addWeek(vector<shared_ptr<Course>> * courseList);
+			void add(Course * course);
+			vector<shared_ptr<Course>>* getWeek(int start_date);
+	};
 }
 
 

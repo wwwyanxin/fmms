@@ -15,6 +15,8 @@ ManagerDAO managerDAO;
 CoachDAO coachDAO;
 VenueDAO venueDAO;
 VenueTypeDAO venueTypeDAO;
+CourseDAO courseDAO;
+
 
 unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::webResource = new unordered_map<string,unordered_map<string,function<void ()>>>();
 
@@ -293,42 +295,57 @@ unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::get
 		response(JsonRoot);
 	};
 
-	(*webResource)["^/test/?$"]["GET"]=[](){
-		Json::Value JsonRoot;
-		JsonRoot["age"] = Json::Value(22);
-		// 写入浮点型数字
-		JsonRoot["height"] = Json::Value(1.78);
-		// 写入布尔型
-		JsonRoot["play_football"] = Json::Value(true);
-		// 写入Json对象
-		Json::Value JsonObj;
-		JsonObj["sometime"] = Json::Value(2018);
-		JsonObj["someone"] = Json::Value("Kelly");
-		JsonObj["somewhere"] = Json::Value("city");
-		JsonRoot["object"] = JsonObj;
+	(*webResource)["^/course_get_week"]["GET"]=[](){
+		LOG(INFO)<<"course_get_week[GET]";
 
-		// 单个键写入数字数组
-		JsonRoot["number_array"].append(1);
-		JsonRoot["number_array"].append(2);
-		JsonRoot["number_array"].append(3);
-		JsonRoot["number_array"].append(4);
-		// 单个键写入字符串数组
-		JsonRoot["string_array"].append("string01");
-		JsonRoot["string_array"].append("string02");
-		JsonRoot["string_array"].append("string03");
-		// 写入Json对象数组，即数组由对象构成
-		Json::Value JsonArr1, JsonArr2, JsonArr3;
-		JsonArr1["string1"] = Json::Value("1-1");
-		JsonArr1["string2"] = Json::Value("1-2");
-		JsonArr2["string1"] = Json::Value("2-1");
-		JsonArr2["string2"] = Json::Value("2-2");
-		JsonArr3["string1"] = Json::Value("3-1");
-		JsonArr3["string2"] = Json::Value("3-2");
-		JsonRoot["object_array"].append(JsonArr1);
-		JsonRoot["object_array"].append(JsonArr2);
-		JsonRoot["object_array"].append(JsonArr3);
+		RequestParam requestParam;
+		int start_date = stoi(requestParam.getRequestValue("start_date"));
+
+		shared_ptr<vector<shared_ptr<Course>>> courseList(courseDAO.getWeek(start_date));
+
+		Json::Value JsonRoot;
+
+		for(auto &item : *courseList){
+			Json::Value JsonList;
+			JsonList["id"] = Json::Value(item->id);
+			JsonList["start_date"] = Json::Value(item->start_date);
+			JsonList["start_hour"] = Json::Value(item->start_hour);
+			JsonList["price"] = Json::Value(item->price);
+			JsonList["capacity"] = Json::Value(item->capacity);
+			JsonList["type"] = Json::Value(item->type);
+
+			Json::Value JsonVenue;
+			JsonVenue["id"] = Json::Value(item->venue->id);
+			JsonVenue["name"] = Json::Value(item->venue->name);
+			JsonVenue["capacity"] = Json::Value(item->venue->capacity);
+			JsonVenue["status"] = Json::Value(item->venue->status);
+
+			Json::Value JsonVenueType;
+			JsonVenueType["id"] = Json::Value(item->venue->venue_type->id);
+			JsonVenueType["type"] = Json::Value(item->venue->venue_type->type);
+
+			Json::Value JsonCoach;
+			JsonCoach["id"] = Json::Value(item->coach->id);
+			JsonCoach["name"] = Json::Value(item->coach->name);
+			JsonCoach["entry_date"] = Json::Value(item->coach->entry_date);
+			JsonCoach["status"] = Json::Value(item->coach->status);
+			JsonCoach["sex"] = Json::Value(item->coach->sex);
+			JsonCoach["introduction"] = Json::Value(item->coach->introduction);
+
+			JsonVenue["venue_type"] = JsonVenueType;
+			JsonList["venue"] = JsonVenue;
+			JsonList["coach"] = JsonCoach;
+
+			JsonRoot["courseList"].append(JsonList);
+		}
 
 		response(JsonRoot);
+	};
+
+	(*webResource)["^/test/?$"]["GET"]=[](){
+
+		response(true);
+
 	};	
 
 
