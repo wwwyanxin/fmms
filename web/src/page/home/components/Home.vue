@@ -1,6 +1,5 @@
 <template>
     <div>
-        wyx
         <img class="img">
         <el-row style="text-align: center;">
             <el-button @click="getTest" type="success">GET测试</el-button>
@@ -28,9 +27,9 @@
         },
         methods:{
             async getTest(){
-                const res = await Api.get('member_register_check_account', {
-                    account:'test132'
-                })
+                const res = await Api.get('course_get_week', {
+                    start_date:'1555344000'
+                });
                 this.textTest = res;
                 console.log(res);
             },
