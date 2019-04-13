@@ -4,17 +4,17 @@
             <el-button type="danger" plain >{{manager.account}}</el-button>
         </div>
         <el-tabs v-model="activeName" type="card">
-            <el-tab-pane lazy label="会员信息管理" name="contentLib">
+            <el-tab-pane lazy label="会员信息管理" name="MemberModule">
                 <MemberModule></MemberModule>
             </el-tab-pane>
-            <el-tab-pane lazy label="教练管理" name="mediaLib">
+            <el-tab-pane lazy label="教练管理" name="CoachModule">
                 <CoachModule></CoachModule>
             </el-tab-pane>
-            <el-tab-pane lazy label="场馆管理" name="cardLib">
+            <el-tab-pane lazy label="场馆管理" name="VenueModule">
                 <VenueModule></VenueModule>
             </el-tab-pane>
-            <el-tab-pane lazy label="课程管理" name="tagLib">
-                课程管理
+            <el-tab-pane lazy label="课程管理" name="CourseModule">
+                <CourseModule></CourseModule>
             </el-tab-pane>
         </el-tabs>
     </div>
@@ -27,14 +27,15 @@
     import MemberModule from "./MemberModule";
     import CoachModule from "./CoachModule";
     import VenueModule from "./VenueModule";
+    import CourseModule from "./CourseModule";
 
     export default {
         name: "Home",
-        components: {VenueModule, CoachModule, MemberModule},
+        components: {CourseModule, VenueModule, CoachModule, MemberModule},
         data() {
             return {
                 manager: "",
-                activeName: 'contentLib'
+                activeName: 'CourseModule'
             }
         },
         created() {},

@@ -101,6 +101,7 @@
     import {cloneDeep} from '@/lib/util'
     import global from '@/service/global'
     import dayjs from 'dayjs'
+
     export default {
         name: "VenueModule",
         data(){
