@@ -15,15 +15,6 @@
                 </span>
             </div>
 
-            <!--<el-time-select
-                    v-model="start_hour"
-                    :picker-options="{
-                         start: '10:00',
-                         step: '01:00',
-                         end: '18:00'
-                        }"
-                    placeholder="选择时间">
-            </el-time-select>-->
 
             <div class="table">
                 <el-table
@@ -68,6 +59,71 @@
                 </el-table>
 
             </div>
+            <div class="edit">
+                <el-dialog :title="'课程计划'" :visible.sync="dialogVisible" :show-close="false"
+                           :close-on-press-escape="false" :close-on-click-modal="false" width="800px" top="5vh">
+                    <el-form style="max-height: 350px;overflow-y: auto;" size="mini" v-if="dialogVisible">
+                        <div>
+                            <el-card v-for="(courseItem,courseIndex) in courseList" class="box-card"
+                                     :body-style="{ padding: '5px' }"
+                                     style="margin:10px;">
+                                <el-form-item :label="`课程:${courseIndex + 1}`">
+                                    <div style="display:inline-block;">
+                                        <el-time-select
+                                                v-model="courseItem.start_hour"
+                                                :picker-options="{ start: '10:00', step: '01:00', end: '18:00' }"
+                                                size="mini"
+                                                @change="hourChange(courseItem)"
+                                                class="width_100"
+                                                placeholder="时间">
+                                        </el-time-select>
+                                        <el-select v-model="courseItem.venue.id" placeholder="场馆"
+                                                   @change="venueChange(courseItem)" :disabled="!courseItem.start_hour"
+                                                   class="width_100">
+                                            <el-option
+                                                    v-for="venueItem in venueFilter(courseItem.start_hour)"
+                                                    :key="venueItem.id"
+                                                    :label="venueItem.name"
+                                                    :value="venueItem.id">
+                                            </el-option>
+                                        </el-select>
+                                        <el-select v-model="courseItem.coach.id" placeholder="教练"
+                                                   @change="coachChange(courseItem)" :disabled="!courseItem.start_hour"
+                                                   class="width_100">
+                                            <el-option
+                                                    v-for="coachItem in coachFilter(courseItem.start_hour)"
+                                                    :key="coachItem.id"
+                                                    :label="coachItem.name"
+                                                    :value="coachItem.id">
+                                            </el-option>
+                                        </el-select>
+                                        <el-input placeholder="课程类型" v-model="courseItem.type"
+                                                  :disabled="!isFreeType(courseItem)" class="width_100"></el-input>
+                                        <el-input type="number" onkeyup="value=value.replace(/^(0+)|[^\d]+/g,'')"
+                                                  v-model="courseItem.capacity" :min="1" :max="10"
+                                                  :disabled="!courseItem.venue.id"
+                                                  style="width:70px"></el-input>
+                                        人，
+                                        <el-input type="number" step="0.01" v-model="courseItem.price" :min="1"
+                                                  style="width:70px;"></el-input>
+                                        元
+                                        <i @click="removeCourse(courseIndex)" class="el-icon-remove"
+                                           style="float:right;margin: 3px 0px 0px 10px;font-size: 25px;vertical-align: top;cursor: pointer"></i>
+                                    </div>
+
+                                </el-form-item>
+                            </el-card>
+                            <i @click="addCourse"
+                               class="el-icon-circle-plus"
+                               style="margin: -30px 37px 17px 17px;font-size: 30px;cursor: pointer;"></i>
+                        </div>
+                    </el-form>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="dialogVisible = false ; courseList = []">取 消</el-button>
+                        <el-button type="primary" @click="formConfirm">确 定</el-button>
+                    </div>
+                </el-dialog>
+            </div>
         </div>
     </div>
 </template>
@@ -110,30 +166,85 @@
                         }
                     }
                 ],
+                venueList: [],
+                coachList: [],
                 tableDate: new Date(),
                 start_date: this.dateFormat(this.getFirstDay(new Date())),
                 start_hour: '',
                 addButton: false,
+                dialogVisible: false,
             }
         },
         mounted() {
             this.pullCourseList();
+            this.pullCoachList();
+            this.pullVenueList();
         },
         methods: {
+            hourChange(courseItem) {
+                courseItem.venue = {};
+                courseItem.coach = {};
+
+            },
+            venueChange(courseItem) {
+                courseItem.venue = cloneDeep(this.venueList.find(item => {
+                    return item.id === courseItem.venue.id
+                }))
+                if (courseItem.venue.venue_type.type === 'free') {
+                    courseItem.type = '';
+                } else {
+                    courseItem.type = cloneDeep(courseItem.venue.venue_type.type);
+                }
+
+            },
+            coachChange(courseItem) {
+                courseItem.coach = cloneDeep(this.coachList.find(item => {
+                    return item.id === courseItem.coach.id
+                }))
+            },
+            venueFilter(start_hour) {
+                const _this = this
+                let venueList = cloneDeep(this.venueList);
+                let res = venueList.filter(venueItem => {
+                    let index = _this.courseList.findIndex(courseItem => {
+                        return start_hour === courseItem.start_hour && courseItem.venue.id === venueItem.id
+                    })
+                    return index === -1 && venueItem.status === 'on'
+                })
+                return res;
+
+            },
+            coachFilter(start_hour) {
+                const _this = this
+                let coachList = cloneDeep(this.coachList);
+                let res = coachList.filter(coachItem => {
+                    let index = _this.courseList.findIndex(courseItem => {
+                        return start_hour === courseItem.start_hour && courseItem.coach.id === coachItem.id
+                    })
+                    return index === -1 && coachItem.status === 'on_work';
+                })
+                return res;
+            },
+            isFreeType(courseItem) {
+                return courseItem.venue.id !== undefined && courseItem.venue.venue_type.type === 'free';
+            },
+            async pullCoachList() {
+                const res = await Api.get("coach_list");
+                this.coachList = res.data.coachList;
+            },
+            async pullVenueList() {
+                const res = await Api.get("venue_list");
+                this.venueList = res.data.venueList;
+            },
             async pullCourseList() {
                 const res = await Api.get('course_get_week', {
                     start_date: this.start_date,
                 })
-                if(res.data){
+                if (res.data) {
                     this.courseList = res.data.courseList
                     this.addButton = false
-                }else {
-                    this.courseList = [/*{
-                        venue: {
-                            venue_type: {},
-                        },
-                        coach: {},
-                    }*/]
+                } else {
+                    this.courseList = []
                     this.addButton = true
                 }
             },
@@ -157,12 +268,26 @@
                 this.dialogVisible = true
             },
             handleAdd() {
-                this.form = {
-                    status: 'on',
-                    venue_type: {},
-                };
-                this.model = 'add';
+                this.courseList = [{
+                    start_date:this.start_date,
+                    venue: {
+                        venue_type: {},
+                    },
+                    coach: {},
+                }];
                 this.dialogVisible = true;
+            },
+            addCourse() {
+                this.courseList.push({
+                    start_date:this.start_date,
+                    venue: {
+                        venue_type: {},
+                    },
+                    coach: {},
+                })
+            },
+            removeCourse(courseIndex) {
+                this.courseList.splice(courseIndex, 1)
             },
             checkItem(form, field, errorMessage) {
                 if (!form[field]) {
@@ -176,22 +301,33 @@
                 }
             },
             checkForm() {
-                if (this.checkItem(this.form, 'name', '未填写姓名')&&
-                    this.checkItem(this.form,'capacity','请填写容纳人数')&&
-                    this.checkItem(this.form,'status','请选择场馆状态')&&
-                    this.checkItem(this.form.venue_type,'id','请选择场馆类型')
-                ) {
-                    return true;
-                } else {
+                if (this.courseList.length === 0) {
                     return false;
                 }
+                for (let course of this.courseList) {
+                    if (this.checkItem(course, 'start_hour', '请填写时间') &&
+                        this.checkItem(course.venue, 'id', '请选择场馆') &&
+                        this.checkItem(course.coach, 'id', '请选择教练') &&
+                        this.checkItem(course, 'type', '请填写课程类型') &&
+                        this.checkItem(course, 'capacity', '请设置写容纳人数') &&
+                        this.checkItem(course, 'price', '请设置写课程价格')
+                    ) {
+                        continue;
+                    } else {
+                        return false;
+                    }
+                }
+                return true;
             },
-            async formConfirm(){
+            async formConfirm() {
                 if (!this.checkForm()) {
                     return
                 }
-                await Api.post(`venue_${this.model}`,this.form);
-                this.pullVenueList();
+                await Api.post("course_add_week", {
+                        courseList: JSON.stringify(this.courseList)
+                    }
+                );
+                //this.pullCourseList();
                 this.dialogVisible = false;
             }
         }
@@ -200,4 +336,7 @@
 
 <style scoped>
 
+    .width_100 {
+        width: 100px;
+    }
 </style>
