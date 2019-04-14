@@ -46,7 +46,7 @@
                     >
                     </el-table-column>
                     <el-table-column
-                            prop="venue.venue_type.type"
+                            prop="type"
                             label="课程类型"
                     >
                     </el-table-column>
@@ -64,15 +64,14 @@
                            :close-on-press-escape="false" :close-on-click-modal="false" width="800px" top="5vh">
                     <el-dialog
                             width="30%"
-                            title="内层 Dialog"
+                            title="注意"
                             :visible.sync="innerVisible"
-                            title="请注意"
                             append-to-body>
                         <span>确认课程后不能修改</span>
-<!--                        <div slot="footer" class="dialog-footer">
+                        <div slot="footer" class="dialog-footer">
                             <el-button @click="innerVisible = false">取 消</el-button>
                             <el-button type="primary" @click="formConfirm">确 定</el-button>
-                        </div>-->
+                        </div>
                     </el-dialog>
                     <el-form style="max-height: 350px;overflow-y: auto;" size="mini" v-if="dialogVisible">
                         <div>
@@ -352,14 +351,12 @@
                 }
             },
             async formConfirm() {
-                /*if (!this.checkForm()) {
-                    return
-                }*/
                 await Api.post("course_add_week", {
                         courseList: JSON.stringify(this.courseList)
                     }
                 );
                 this.pullCourseList();
+                this.innerVisible = false;
                 this.dialogVisible = false;
             }
         }
