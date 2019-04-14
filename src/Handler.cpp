@@ -342,6 +342,46 @@ unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::get
 		response(JsonRoot);
 	};
 
+	(*webResource)["^/course_add_week/?$"]["POST"]=[](){
+		LOG(INFO)<<"course_add_week[POST]";
+
+		RequestParam requestParam;
+
+		string json_str = requestParam.getRequestValue("courseList");
+		Json::Reader reader;
+		Json::Value JsonCourseList;
+
+		auto courseList = make_shared<vector<shared_ptr<Course>>>();
+		if(reader.parse(json_str,JsonCourseList))
+		{
+			int list_size = JsonCourseList.size();
+			LOG(INFO)<<"list_size: "<<list_size;
+			for(int i=0;i<list_size;i++){
+				auto course = make_shared<Course>();
+
+				course->id = JsonCourseList[i]["id"].asInt();
+				course->start_hour = JsonCourseList[i]["start_hour"].asString();
+				course->start_date = JsonCourseList[i]["start_date"].asInt();
+				course->capacity = JsonCourseList[i]["capacity"].asInt();
+				course->type = JsonCourseList[i]["type"].asString();
+				course->price = JsonCourseList[i]["price"].asDouble();
+				course->coach->id = JsonCourseList[i]["coach"]["id"].asInt();
+				course->venue->id = JsonCourseList[i]["venue"]["id"].asInt();
+
+				LOG(INFO)<<"course:"<<course->id;
+				LOG(INFO)<<"course->venue:"<<course->venue->id;
+
+				courseList->push_back(course);
+			}
+			courseDAO.addWeek(courseList.get());
+			response(true);
+		}else{
+			LOG(ERROR)<<"json parse fail";
+			response(false);
+			return;
+		}
+	};
+
 	(*webResource)["^/test/?$"]["GET"]=[](){
 
 		response(true);
