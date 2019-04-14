@@ -62,6 +62,18 @@
             <div class="edit">
                 <el-dialog :title="'课程计划'" :visible.sync="dialogVisible" :show-close="false"
                            :close-on-press-escape="false" :close-on-click-modal="false" width="800px" top="5vh">
+                    <el-dialog
+                            width="30%"
+                            title="内层 Dialog"
+                            :visible.sync="innerVisible"
+                            title="请注意"
+                            append-to-body>
+                        <span>确认课程后不能修改</span>
+<!--                        <div slot="footer" class="dialog-footer">
+                            <el-button @click="innerVisible = false">取 消</el-button>
+                            <el-button type="primary" @click="formConfirm">确 定</el-button>
+                        </div>-->
+                    </el-dialog>
                     <el-form style="max-height: 350px;overflow-y: auto;" size="mini" v-if="dialogVisible">
                         <div>
                             <el-card v-for="(courseItem,courseIndex) in courseList" class="box-card"
@@ -99,13 +111,16 @@
                                         </el-select>
                                         <el-input placeholder="课程类型" v-model="courseItem.type"
                                                   :disabled="!isFreeType(courseItem)" class="width_100"></el-input>
-                                        <el-input type="number" onkeyup="value=value.replace(/^(0+)|[^\d]+/g,'')"
-                                                  v-model="courseItem.capacity" :min="1" :max="10"
+                                        <el-input type="number" @change="capacityChange(courseItem)"
+                                                  onkeyup="value=value.replace(/^(0+)|[^\d]+/g,'')"
+                                                  v-model="courseItem.capacity" :min="1"
+                                                  :max="courseItem.venue.capacity"
                                                   :disabled="!courseItem.venue.id"
                                                   style="width:70px"></el-input>
                                         人，
-                                        <el-input type="number" step="0.01" v-model="courseItem.price" :min="1"
-                                                  style="width:70px;"></el-input>
+                                        <el-input type="number" step="0.01" v-model="courseItem.price" :min="0"
+                                                  @change="priceChange(courseItem)"
+                                                  style="width:90px;"></el-input>
                                         元
                                         <i @click="removeCourse(courseIndex)" class="el-icon-remove"
                                            style="float:right;margin: 3px 0px 0px 10px;font-size: 25px;vertical-align: top;cursor: pointer"></i>
@@ -120,8 +135,9 @@
                     </el-form>
                     <div slot="footer" class="dialog-footer">
                         <el-button @click="dialogVisible = false ; courseList = []">取 消</el-button>
-                        <el-button type="primary" @click="formConfirm">确 定</el-button>
+                        <el-button type="primary" @click="outConfirm">确 定</el-button>
                     </div>
+
                 </el-dialog>
             </div>
         </div>
@@ -173,6 +189,7 @@
                 start_hour: '',
                 addButton: false,
                 dialogVisible: false,
+                innerVisible:false
             }
         },
         mounted() {
@@ -181,6 +198,14 @@
             this.pullVenueList();
         },
         methods: {
+            priceChange(courseItem) {
+                courseItem.price = parseFloat(courseItem.price);
+                courseItem.price = courseItem.price >= 0 ? courseItem.price : 0;
+            },
+            capacityChange(courseItem) {
+                courseItem.capacity = parseInt(courseItem.capacity)
+                courseItem.capacity = courseItem.capacity > courseItem.venue.capacity ? courseItem.venue.capacity : courseItem.capacity;
+            },
             hourChange(courseItem) {
                 courseItem.venue = {};
                 courseItem.coach = {};
@@ -195,6 +220,7 @@
                 } else {
                     courseItem.type = cloneDeep(courseItem.venue.venue_type.type);
                 }
+                courseItem.capacity = courseItem.venue.capacity
 
             },
             coachChange(courseItem) {
@@ -269,21 +295,23 @@
             },
             handleAdd() {
                 this.courseList = [{
-                    start_date:this.start_date,
+                    start_date: this.start_date,
                     venue: {
                         venue_type: {},
                     },
                     coach: {},
+                    price:0,
                 }];
                 this.dialogVisible = true;
             },
             addCourse() {
                 this.courseList.push({
-                    start_date:this.start_date,
+                    start_date: this.start_date,
                     venue: {
                         venue_type: {},
                     },
                     coach: {},
+                    price:0,
                 })
             },
             removeCourse(courseIndex) {
@@ -309,8 +337,7 @@
                         this.checkItem(course.venue, 'id', '请选择场馆') &&
                         this.checkItem(course.coach, 'id', '请选择教练') &&
                         this.checkItem(course, 'type', '请填写课程类型') &&
-                        this.checkItem(course, 'capacity', '请设置写容纳人数') &&
-                        this.checkItem(course, 'price', '请设置写课程价格')
+                        this.checkItem(course, 'capacity', '请设置写容纳人数')
                     ) {
                         continue;
                     } else {
@@ -319,15 +346,20 @@
                 }
                 return true;
             },
-            async formConfirm() {
-                if (!this.checkForm()) {
-                    return
+            outConfirm(){
+                if(this.checkForm()){
+                    this.innerVisible = true
                 }
+            },
+            async formConfirm() {
+                /*if (!this.checkForm()) {
+                    return
+                }*/
                 await Api.post("course_add_week", {
                         courseList: JSON.stringify(this.courseList)
                     }
                 );
-                //this.pullCourseList();
+                this.pullCourseList();
                 this.dialogVisible = false;
             }
         }
