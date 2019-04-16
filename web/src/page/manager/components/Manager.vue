@@ -5,16 +5,16 @@
         </div>
         <el-tabs v-model="activeName" type="card">
             <el-tab-pane lazy label="会员信息管理" name="MemberModule">
-                <MemberModule></MemberModule>
+                <MemberModule v-if="activeName === 'MemberModule'"></MemberModule>
             </el-tab-pane>
             <el-tab-pane lazy label="教练管理" name="CoachModule">
-                <CoachModule></CoachModule>
+                <CoachModule v-if="activeName === 'CoachModule'"></CoachModule>
             </el-tab-pane>
             <el-tab-pane lazy label="场馆管理" name="VenueModule">
-                <VenueModule></VenueModule>
+                <VenueModule v-if="activeName === 'VenueModule'"></VenueModule>
             </el-tab-pane>
             <el-tab-pane lazy label="课程管理" name="CourseModule">
-                <CourseModule></CourseModule>
+                <CourseModule v-if="activeName === 'CourseModule'"></CourseModule>
             </el-tab-pane>
         </el-tabs>
     </div>

@@ -49,6 +49,9 @@
                             prop="type"
                             label="课程类型"
                     >
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.type ? scope.row.type : scope.row.venue.venue_type.type }}</span>
+                        </template>
                     </el-table-column>
                     <el-table-column
                             prop="capacity"
@@ -192,9 +195,9 @@
             }
         },
         mounted() {
-            this.pullCourseList();
             this.pullCoachList();
             this.pullVenueList();
+            this.pullCourseList();
         },
         methods: {
             priceChange(courseItem) {
@@ -206,7 +209,9 @@
                 courseItem.capacity = courseItem.capacity > courseItem.venue.capacity ? courseItem.venue.capacity : courseItem.capacity;
             },
             hourChange(courseItem) {
-                courseItem.venue = {};
+                courseItem.venue = {
+                    venue_type: {type:''},
+                };
                 courseItem.coach = {};
 
             },
@@ -296,7 +301,7 @@
                 this.courseList = [{
                     start_date: this.start_date,
                     venue: {
-                        venue_type: {},
+                        venue_type: {type:''},
                     },
                     coach: {},
                     price:0,
@@ -307,7 +312,7 @@
                 this.courseList.push({
                     start_date: this.start_date,
                     venue: {
-                        venue_type: {},
+                        venue_type: {type:''},
                     },
                     coach: {},
                     price:0,

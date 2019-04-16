@@ -190,10 +190,14 @@
                                 password:this.loginForm.password,
                             })
                             if(res.status){
+
+                                global.set("member",res.data);
+
                                 global.get('app').$message({
                                     type: 'success',
                                     message: '登录成功'
                                 })
+                                this.$router.push("/");
                             }else{
                                 global.get('app').$message({
                                     type: 'error',

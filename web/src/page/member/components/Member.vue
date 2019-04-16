@@ -1,61 +1,53 @@
 <template>
     <div>
-        wyx
-        <img class="img">
-        <el-row>
-            <el-button>默认按钮</el-button>
-            <el-button type="primary">主要按钮</el-button>
-            <el-button type="success">成功按钮</el-button>
-            <el-button type="info">信息按钮</el-button>
-            <el-button type="warning">警告按钮</el-button>
-            <el-button type="danger">危险按钮</el-button>
-        </el-row>
-        <h1>{{textTest}}</h1>
+        <div style="position: fixed;right: 20px;top:3px;">
+            <el-button type="danger" plain>{{member.account}}</el-button>
+        </div>
+        <el-tabs v-model="activeName" type="card">
+            <el-tab-pane lazy label="个人信息" name="InfoModule">
+                <InfoModule v-if="activeName === 'InfoModule'"></InfoModule>
+            </el-tab-pane>
+        </el-tabs>
     </div>
 </template>
 
 <script>
-    import {cloneDeep,getUrl} from '@/lib/util'
+    import {cloneDeep, getUrl} from '@/lib/util'
     import Api from '@/service/api.js'
+    import global from '@/service/global'
+    import InfoModule from "./InfoModule";
 
     export default {
         name: "Member",
-        data(){
+        components: {InfoModule},
+        data() {
             return {
-                textTest : "",
+                member: {},
+                activeName: "InfoModule"
             }
         },
-        created() {},
-        beforeDestroy() {},
-        async mounted(){
-            const res = await Api.get('/fmms/cgi-bin/logicsvr.cgi/test', {
-                a:1,
-                b:2,
-                c:3
-            })
-            this.textTest = res;
-            console.log(res);
+        created() {
         },
-        methods:{
-
+        beforeDestroy() {
         },
-        computed:{
+        async mounted() {
 
-        }
+            if (global.get("member")) {
+                this.member = global.get("member");
+            } else {
+                global.get('app').$message({
+                    type: 'error',
+                    message: '请先登录'
+                })
+                this.$router.push("/login");
+            }
+        },
+        methods: {},
+        computed: {}
     }
 </script>
 
 <style scoped>
-    div{
-        background: pink;
-        color:olivedrab;
-    }
 
-    .img{
-        transform:rotate(17deg);
-        background-image: url(../../../style/images/game.png);
-        width:46px;
-        height:45px;
-    }
 
 </style>
