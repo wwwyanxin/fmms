@@ -32,6 +32,10 @@
                     <el-option :label="'半年（6个月）'" :value="6*30*24*60*60"> </el-option>
                     <el-option :label="'一年（12个月）'" :value="12*30*24*60*60"> </el-option>
                 </el-select>
+
+                <span class="text" style="margin:40px">
+                    价格：{{price}}元
+                </span>
                 <div slot="footer" class="dialog-footer">
                     <el-button @click="dialogVisible = false">取 消</el-button>
                     <el-button type="primary" @click="confirm">确 定</el-button>
@@ -53,11 +57,12 @@
                 member:{},
                 renewTime:1*30*24*60*60, //一个月
                 dialogVisible: false,
+                order_start_date:0,
             }
         },
         mounted(){
 
-           /* // 测试默认登录账号
+            /*// 测试默认登录账号
             global.set("member", {
                 "account": "wyx",
                 "end_date": -1,
@@ -80,18 +85,30 @@
                 let nowTime = parseInt(new Date().getTime()/1000);
                 // 已经过期
                 if(nowTime > this.member.end_date){
+                    this.order_start_date = nowTime;
                     this.member.end_date = nowTime + this.renewTime;
                 }else{
+                    this.order_start_date = this.member.end_date;
                     this.member.end_date = this.member.end_date + this.renewTime
                 }
-                await Api.post(`member_update`, this.member);
+                await Api.post(`renew_service`, {
+                    ...this.member,
+                    order_start_date:this.order_start_date,
+                    price:this.price
+                });
                 global.get('app').$message({
-                                    type: 'success',
-                                    message: '续费成功'
-                                })
+                    type: 'success',
+                    message: '续费成功'
+                })
                 this.dialogVisible = false
             },
+        },
+        computed:{
+            price(){
+                return (this.renewTime/(30*24*60*60))*100
+            }
         }
+
     }
 </script>
 
