@@ -16,6 +16,9 @@ CoachDAO coachDAO;
 VenueDAO venueDAO;
 VenueTypeDAO venueTypeDAO;
 CourseDAO courseDAO;
+RenewOrderDAO renewOrderDAO;
+CourseOrderDAO courseOrderDAO;
+
 
 
 unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::webResource = new unordered_map<string,unordered_map<string,function<void ()>>>();
@@ -88,9 +91,8 @@ unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::get
 		member->password=requestParam.getRequestValue("password");
 		member->name=requestParam.getRequestValue("name");
 		member->sex=requestParam.getRequestValue("sex");
-		member->start_date=stoi(requestParam.getRequestValue("start_date"));
-		member->end_date=stoi(requestParam.getRequestValue("end_date"));
-
+		member->start_date=stol(requestParam.getRequestValue("start_date"));
+		member->end_date=stol(requestParam.getRequestValue("end_date"));
 		memberDAO.update(member.get());
 
 		response(true);
@@ -214,7 +216,7 @@ unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::get
 		coach->id = stoi(requestParam.getRequestValue("id"));
 		coach->name = requestParam.getRequestValue("name");
 		coach->sex = requestParam.getRequestValue("sex");
-		coach->entry_date = stoi(requestParam.getRequestValue("entry_date"));
+		coach->entry_date = stol(requestParam.getRequestValue("entry_date"));
 		coach->introduction = requestParam.getRequestValue("introduction");
 		coach->status = requestParam.getRequestValue("status");
 
@@ -299,7 +301,7 @@ unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::get
 		LOG(INFO)<<"course_get_week[GET]";
 
 		RequestParam requestParam;
-		int start_date = stoi(requestParam.getRequestValue("start_date"));
+		long start_date = stol(requestParam.getRequestValue("start_date"));
 
 		shared_ptr<vector<shared_ptr<Course>>> courseList(courseDAO.getWeek(start_date));
 
@@ -361,7 +363,7 @@ unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::get
 
 				course->id = JsonCourseList[i]["id"].asInt();
 				course->start_hour = JsonCourseList[i]["start_hour"].asString();
-				course->start_date = JsonCourseList[i]["start_date"].asInt();
+				course->start_date = JsonCourseList[i]["start_date"].asLargestInt();
 				course->capacity = JsonCourseList[i]["capacity"].asInt();
 				course->type = JsonCourseList[i]["type"].asString();
 				course->price = JsonCourseList[i]["price"].asDouble();
@@ -381,6 +383,79 @@ unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::get
 			return;
 		}
 	};
+
+	(*webResource)["^/renew_service/?$"]["POST"]=[](){
+		LOG(INFO)<<"renew_service[POST]";
+
+		RequestParam requestParam;
+
+		shared_ptr<Member> member = make_shared<Member>();
+		shared_ptr<RenewOrder> renewOrder = make_shared<RenewOrder>();
+
+		member->id=stoi(requestParam.getRequestValue("id"));
+		member->account=requestParam.getRequestValue("account");
+		member->password=requestParam.getRequestValue("password");
+		member->name=requestParam.getRequestValue("name");
+		member->sex=requestParam.getRequestValue("sex");
+		member->start_date=stol(requestParam.getRequestValue("start_date"));
+		member->end_date=stol(requestParam.getRequestValue("end_date"));
+
+
+		renewOrder->member = member;
+		renewOrder->time = time_t(nullptr);
+		renewOrder->price = stod(requestParam.getRequestValue("price"));
+		renewOrder->start_date = stol(requestParam.getRequestValue("order_start_date"));
+		renewOrder->end_date = member->end_date;
+
+
+		memberDAO.update(member.get());
+		renewOrderDAO.add(renewOrder.get());
+
+		response(true);
+	};
+
+
+	(*webResource)["^/renew_order_list/?$"]["GET"]=[](){
+		LOG(INFO)<<"renew_order_list[GET]";
+
+		RequestParam requestParam;
+
+		shared_ptr<vector<shared_ptr<RenewOrder>>> renewOrderList;
+		string member_id_str = requestParam.getRequestValue("member_id");
+
+		//如果没有填写member_id查询所有记录
+		if(member_id_str.empty()){
+			renewOrderList.reset(renewOrderDAO.list());
+		}else{
+			renewOrderList.reset(renewOrderDAO.listByMemberId(stoi(member_id_str)));
+		}
+		Json::Value JsonRoot;
+		for(auto &item : *renewOrderList){
+			Json::Value JsonList;
+			JsonList["id"] = Json::Value(item->id);
+			JsonList["time"] = Json::Value(item->time);
+			JsonList["price"] = Json::Value(item->price);
+			JsonList["start_date"] = Json::Value(item->start_date);
+			JsonList["end_date"] = Json::Value(item->end_date);
+
+			Json::Value JsonMember;
+			JsonMember["id"] = Json::Value(item->member->id);
+			JsonMember["name"] = Json::Value(item->member->name);
+			JsonMember["account"] = Json::Value(item->member->account);
+			JsonMember["password"] = Json::Value(item->member->password);
+			JsonMember["sex"] = Json::Value(item->member->sex);
+			JsonMember["start_date"] = Json::Value(item->member->start_date);
+			JsonMember["end_date"] = Json::Value(item->member->end_date);
+
+			JsonList["member"] = JsonMember;
+
+
+			JsonRoot["renewOrderList"].append(JsonList);
+		}
+
+		response(JsonRoot);
+	};
+
 
 	(*webResource)["^/test/?$"]["GET"]=[](){
 

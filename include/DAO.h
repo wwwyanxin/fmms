@@ -53,6 +53,25 @@ namespace wyx{
 			void add(Course * course);
 			vector<shared_ptr<Course>>* getWeek(int start_date);
 	};
+
+	class RenewOrderDAO{
+		public:
+			void add(RenewOrder *renewOrder);
+			vector<shared_ptr<RenewOrder>>* listByMemberId(int member_id);
+			vector<shared_ptr<RenewOrder>>* list();
+			
+	};
+
+	class CourseOrderDAO{
+		public:
+			void add(CourseOrder *courseOrder);
+			vector<shared_ptr<CourseOrder>>* listByMemberId(int member_id);
+			vector<shared_ptr<CourseOrder>>* list();
+
+			vector<shared_ptr<CourseOrder>>* listByCourseId(int course_id);
+	};
+
+
 }
 
 

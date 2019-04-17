@@ -57,6 +57,7 @@ void MemberDAO::update(Member *member){
 		pstmt->setInt(6,member->end_date);
 		pstmt->setInt(7,member->id);
 
+		LOG(INFO)<<"member->end_date="<<member->end_date;
 		pstmt->executeUpdate();
 
 		LOG(INFO)<<"sql execute success";
@@ -613,3 +614,139 @@ vector<shared_ptr<Course>>* CourseDAO::getWeek(int start_date){
 	}
 	return courseList;
 }
+
+
+void RenewOrderDAO::add(RenewOrder * renewOrder){
+	string sql_str="insert into renew_order(`member_id`,`time`,`price`,`start_date`,`end_date`) values(?,?,?,?,?);";
+	shared_ptr<sql::Connection> conn;
+	shared_ptr<sql::PreparedStatement> pstmt;
+	shared_ptr<sql::ResultSet> res;
+
+	try{
+		conn.reset(DBConn::getConnect());
+		pstmt.reset(conn->prepareStatement(sql_str));
+
+		pstmt->setInt(1,renewOrder->member->id);
+		pstmt->setInt(2,renewOrder->time);
+		pstmt->setDouble(3,renewOrder->price);
+		pstmt->setInt(4,renewOrder->start_date);
+		pstmt->setInt(5,renewOrder->end_date);
+
+		pstmt->executeUpdate();
+
+		LOG(INFO)<<"sql execute success";
+
+	} catch (sql::SQLException& e) {
+		daoExceptionCatch(e);
+	}
+	return;
+}
+
+
+vector<shared_ptr<RenewOrder>>* RenewOrderDAO::listByMemberId(int member_id){
+	auto renewOrderList = new vector<shared_ptr<RenewOrder>>;
+
+	string sql_str="select renew_order.*, \
+					member.id as `member.id`, \
+					member.name as `member.name`, \
+					member.account as `member.account`, \
+					member.password as `member.password`, \
+					member.sex as `member.sex`, \
+					member.start_date as `member.start_date`, \
+					member.end_date as `member.end_date` \
+					from renew_order,member  \
+					where member.id = ? and renew_order.member_id = member.id;";
+	shared_ptr<sql::Connection> conn;
+	shared_ptr<sql::PreparedStatement> pstmt;
+	shared_ptr<sql::ResultSet> res;
+
+	try{
+		conn.reset(DBConn::getConnect());
+		pstmt.reset(conn->prepareStatement(sql_str));
+
+		pstmt->setInt(1,member_id);
+
+		res.reset(pstmt->executeQuery());
+
+		LOG(INFO)<<"sql execute success";
+
+		while(res->next()){
+			auto renewOrder = make_shared<RenewOrder>();
+
+			renewOrder->id = res->getInt("id");
+			renewOrder->time = res->getInt("time");
+			renewOrder->price = res->getDouble("price");
+			renewOrder->start_date = res->getInt("start_date");
+			renewOrder->end_date = res->getInt("end_date");
+			
+			renewOrder->member->id = res->getInt("member.id");
+			renewOrder->member->name = res->getString("member.name");
+			renewOrder->member->account = res->getString("member.account");
+			renewOrder->member->password = res->getString("member.password");
+			renewOrder->member->sex = res->getString("member.sex");
+			renewOrder->member->start_date = res->getInt("member.start_date");
+			renewOrder->member->end_date = res->getInt("member.end_date");
+
+			renewOrderList->push_back(renewOrder);
+
+		}
+
+	} catch (sql::SQLException& e) {
+		daoExceptionCatch(e);
+	}
+	return renewOrderList;
+}
+
+vector<shared_ptr<RenewOrder>>* RenewOrderDAO::list(){
+	auto renewOrderList = new vector<shared_ptr<RenewOrder>>;
+
+	string sql_str="select renew_order.*, \
+					member.id as `member.id`, \
+					member.name as `member.name`, \
+					member.account as `member.account`, \
+					member.password as `member.password`, \
+					member.sex as `member.sex`, \
+					member.start_date as `member.start_date`, \
+					member.end_date as `member.end_date` \
+					from renew_order,member  \
+					where renew_order.member_id = member.id;";
+	shared_ptr<sql::Connection> conn;
+	shared_ptr<sql::PreparedStatement> pstmt;
+	shared_ptr<sql::ResultSet> res;
+
+	try{
+		conn.reset(DBConn::getConnect());
+		pstmt.reset(conn->prepareStatement(sql_str));
+
+
+		res.reset(pstmt->executeQuery());
+
+		LOG(INFO)<<"sql execute success";
+
+		while(res->next()){
+			auto renewOrder = make_shared<RenewOrder>();
+
+			renewOrder->id = res->getInt("id");
+			renewOrder->time = res->getInt("time");
+			renewOrder->price = res->getDouble("price");
+			renewOrder->start_date = res->getInt("start_date");
+			renewOrder->end_date = res->getInt("end_date");
+			
+			renewOrder->member->id = res->getInt("member.id");
+			renewOrder->member->name = res->getString("member.name");
+			renewOrder->member->account = res->getString("member.account");
+			renewOrder->member->password = res->getString("member.password");
+			renewOrder->member->sex = res->getString("member.sex");
+			renewOrder->member->start_date = res->getInt("member.start_date");
+			renewOrder->member->end_date = res->getInt("member.end_date");
+
+			renewOrderList->push_back(renewOrder);
+
+		}
+
+	} catch (sql::SQLException& e) {
+		daoExceptionCatch(e);
+	}
+	return renewOrderList;
+}
+
