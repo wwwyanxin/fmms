@@ -13,8 +13,8 @@ namespace wyx{
 			string password;
 			string name;
 			string sex;
-			int start_date;
-			int end_date;
+			long start_date;
+			long end_date;
 	};
 
 	class Manager{
@@ -29,7 +29,7 @@ namespace wyx{
 			int id;
 			string name;
 			string sex;
-			int entry_date;
+			long entry_date;
 			string introduction;
 			string status; //在职on_work 离职off_work
 	};
@@ -54,15 +54,40 @@ namespace wyx{
 	class Course{
 		public:
 			int id;
-			int start_date;
+			long start_date;
 			string start_hour;
 			double price;
 			int capacity;
+			int registration_num;
 			string type;
 			shared_ptr<Venue> venue;
 			shared_ptr<Coach> coach;
 
 			Course();
+	};
+
+	class Order{
+		public: 
+			int id;
+			shared_ptr<Member> member;
+			long time;
+			double price;
+
+			Order();
+	};
+
+
+	class RenewOrder : public Order{
+		public:
+			long start_date;
+			long end_date;
+	};
+
+	class CourseOrder : public Order{
+		public:
+			shared_ptr<Course> course;
+
+			CourseOrder();
 	};
 }
 

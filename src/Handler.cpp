@@ -16,6 +16,9 @@ CoachDAO coachDAO;
 VenueDAO venueDAO;
 VenueTypeDAO venueTypeDAO;
 CourseDAO courseDAO;
+RenewOrderDAO renewOrderDAO;
+CourseOrderDAO courseOrderDAO;
+
 
 
 unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::webResource = new unordered_map<string,unordered_map<string,function<void ()>>>();
@@ -88,9 +91,8 @@ unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::get
 		member->password=requestParam.getRequestValue("password");
 		member->name=requestParam.getRequestValue("name");
 		member->sex=requestParam.getRequestValue("sex");
-		member->start_date=stoi(requestParam.getRequestValue("start_date"));
-		member->end_date=stoi(requestParam.getRequestValue("end_date"));
-
+		member->start_date=stol(requestParam.getRequestValue("start_date"));
+		member->end_date=stol(requestParam.getRequestValue("end_date"));
 		memberDAO.update(member.get());
 
 		response(true);
@@ -214,7 +216,7 @@ unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::get
 		coach->id = stoi(requestParam.getRequestValue("id"));
 		coach->name = requestParam.getRequestValue("name");
 		coach->sex = requestParam.getRequestValue("sex");
-		coach->entry_date = stoi(requestParam.getRequestValue("entry_date"));
+		coach->entry_date = stol(requestParam.getRequestValue("entry_date"));
 		coach->introduction = requestParam.getRequestValue("introduction");
 		coach->status = requestParam.getRequestValue("status");
 
@@ -299,7 +301,7 @@ unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::get
 		LOG(INFO)<<"course_get_week[GET]";
 
 		RequestParam requestParam;
-		int start_date = stoi(requestParam.getRequestValue("start_date"));
+		long start_date = stol(requestParam.getRequestValue("start_date"));
 
 		shared_ptr<vector<shared_ptr<Course>>> courseList(courseDAO.getWeek(start_date));
 
@@ -312,6 +314,7 @@ unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::get
 			JsonList["start_hour"] = Json::Value(item->start_hour);
 			JsonList["price"] = Json::Value(item->price);
 			JsonList["capacity"] = Json::Value(item->capacity);
+			JsonList["registration_num"] = Json::Value(item->registration_num);
 			JsonList["type"] = Json::Value(item->type);
 
 			Json::Value JsonVenue;
@@ -341,6 +344,159 @@ unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::get
 
 		response(JsonRoot);
 	};
+
+	(*webResource)["^/course_add_week/?$"]["POST"]=[](){
+		LOG(INFO)<<"course_add_week[POST]";
+
+		RequestParam requestParam;
+
+		string json_str = requestParam.getRequestValue("courseList");
+		Json::Reader reader;
+		Json::Value JsonCourseList;
+
+		auto courseList = make_shared<vector<shared_ptr<Course>>>();
+		if(reader.parse(json_str,JsonCourseList))
+		{
+			int list_size = JsonCourseList.size();
+			LOG(INFO)<<"list_size: "<<list_size;
+			for(int i=0;i<list_size;i++){
+				auto course = make_shared<Course>();
+
+				course->id = JsonCourseList[i]["id"].asInt();
+				course->start_hour = JsonCourseList[i]["start_hour"].asString();
+				course->start_date = JsonCourseList[i]["start_date"].asLargestInt();
+				course->capacity = JsonCourseList[i]["capacity"].asInt();
+				course->registration_num = 0;
+				course->type = JsonCourseList[i]["type"].asString();
+				course->price = JsonCourseList[i]["price"].asDouble();
+				course->coach->id = JsonCourseList[i]["coach"]["id"].asInt();
+				course->venue->id = JsonCourseList[i]["venue"]["id"].asInt();
+
+
+				courseList->push_back(course);
+			}
+			courseDAO.addWeek(courseList.get());
+			response(true);
+		}else{
+			LOG(ERROR)<<"json parse fail";
+			response(false);
+			return;
+		}
+	};
+
+	(*webResource)["^/course_buy/?$"]["POST"]=[](){
+		LOG(INFO)<<"course_buy[POST]";
+
+		RequestParam requestParam;
+
+		string json_str = requestParam.getRequestValue("course");
+		Json::Reader reader;
+		Json::Value JsonCourse;
+
+		if(reader.parse(json_str,JsonCourse))
+		{
+			auto course = make_shared<Course>();
+
+			course->id = JsonCourse["id"].asInt();
+			course->start_hour = JsonCourse["start_hour"].asString();
+			course->start_date = JsonCourse["start_date"].asLargestInt();
+			course->capacity = JsonCourse["capacity"].asInt();
+			course->registration_num = JsonCourse["registration_num"].asInt();
+			course->type = JsonCourse["type"].asString();
+			course->price = JsonCourse["price"].asDouble();
+			course->coach->id = JsonCourse["coach"]["id"].asInt();
+			course->venue->id = JsonCourse["venue"]["id"].asInt();
+
+
+			auto courseOrder = make_shared<CourseOrder>();
+			courseOrder->course = course;
+			courseOrder->member->id = stoi(requestParam.getRequestValue("member_id"));
+			courseOrder->price = course->price;
+			courseOrder->time = time(nullptr);
+
+
+			courseDAO.update(course.get());
+			courseOrderDAO.add(courseOrder.get());
+			response(true);
+		}else{
+			LOG(ERROR)<<"json parse fail";
+			response(false);
+			return;
+		}
+	};
+
+	(*webResource)["^/renew_service/?$"]["POST"]=[](){
+		LOG(INFO)<<"renew_service[POST]";
+
+		RequestParam requestParam;
+
+		shared_ptr<Member> member = make_shared<Member>();
+		shared_ptr<RenewOrder> renewOrder = make_shared<RenewOrder>();
+
+		member->id=stoi(requestParam.getRequestValue("id"));
+		member->account=requestParam.getRequestValue("account");
+		member->password=requestParam.getRequestValue("password");
+		member->name=requestParam.getRequestValue("name");
+		member->sex=requestParam.getRequestValue("sex");
+		member->start_date=stol(requestParam.getRequestValue("start_date"));
+		member->end_date=stol(requestParam.getRequestValue("end_date"));
+
+
+		renewOrder->member = member;
+		renewOrder->time = time(nullptr);
+		renewOrder->price = stod(requestParam.getRequestValue("price"));
+		renewOrder->start_date = stol(requestParam.getRequestValue("order_start_date"));
+		renewOrder->end_date = member->end_date;
+
+
+		memberDAO.update(member.get());
+		renewOrderDAO.add(renewOrder.get());
+
+		response(true);
+	};
+
+
+	(*webResource)["^/renew_order_list/?$"]["GET"]=[](){
+		LOG(INFO)<<"renew_order_list[GET]";
+
+		RequestParam requestParam;
+
+		shared_ptr<vector<shared_ptr<RenewOrder>>> renewOrderList;
+		string member_id_str = requestParam.getRequestValue("member_id");
+
+		//如果没有填写member_id查询所有记录
+		if(member_id_str.empty()){
+			renewOrderList.reset(renewOrderDAO.list());
+		}else{
+			renewOrderList.reset(renewOrderDAO.listByMemberId(stoi(member_id_str)));
+		}
+		Json::Value JsonRoot;
+		for(auto &item : *renewOrderList){
+			Json::Value JsonList;
+			JsonList["id"] = Json::Value(item->id);
+			JsonList["time"] = Json::Value(item->time);
+			JsonList["price"] = Json::Value(item->price);
+			JsonList["start_date"] = Json::Value(item->start_date);
+			JsonList["end_date"] = Json::Value(item->end_date);
+
+			Json::Value JsonMember;
+			JsonMember["id"] = Json::Value(item->member->id);
+			JsonMember["name"] = Json::Value(item->member->name);
+			JsonMember["account"] = Json::Value(item->member->account);
+			JsonMember["password"] = Json::Value(item->member->password);
+			JsonMember["sex"] = Json::Value(item->member->sex);
+			JsonMember["start_date"] = Json::Value(item->member->start_date);
+			JsonMember["end_date"] = Json::Value(item->member->end_date);
+
+			JsonList["member"] = JsonMember;
+
+
+			JsonRoot["renewOrderList"].append(JsonList);
+		}
+
+		response(JsonRoot);
+	};
+
 
 	(*webResource)["^/test/?$"]["GET"]=[](){
 
