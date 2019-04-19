@@ -51,6 +51,8 @@ namespace wyx{
 		public:
 			void addWeek(vector<shared_ptr<Course>> * courseList);
 			void add(Course * course);
+			Course* get(int id);
+			void update(Course *course);
 			vector<shared_ptr<Course>>* getWeek(int start_date);
 	};
 

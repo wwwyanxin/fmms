@@ -314,6 +314,7 @@ unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::get
 			JsonList["start_hour"] = Json::Value(item->start_hour);
 			JsonList["price"] = Json::Value(item->price);
 			JsonList["capacity"] = Json::Value(item->capacity);
+			JsonList["registration_num"] = Json::Value(item->registration_num);
 			JsonList["type"] = Json::Value(item->type);
 
 			Json::Value JsonVenue;
@@ -365,17 +366,57 @@ unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::get
 				course->start_hour = JsonCourseList[i]["start_hour"].asString();
 				course->start_date = JsonCourseList[i]["start_date"].asLargestInt();
 				course->capacity = JsonCourseList[i]["capacity"].asInt();
+				course->registration_num = 0;
 				course->type = JsonCourseList[i]["type"].asString();
 				course->price = JsonCourseList[i]["price"].asDouble();
 				course->coach->id = JsonCourseList[i]["coach"]["id"].asInt();
 				course->venue->id = JsonCourseList[i]["venue"]["id"].asInt();
 
-				LOG(INFO)<<"course:"<<course->id;
-				LOG(INFO)<<"course->venue:"<<course->venue->id;
 
 				courseList->push_back(course);
 			}
 			courseDAO.addWeek(courseList.get());
+			response(true);
+		}else{
+			LOG(ERROR)<<"json parse fail";
+			response(false);
+			return;
+		}
+	};
+
+	(*webResource)["^/course_buy/?$"]["POST"]=[](){
+		LOG(INFO)<<"course_buy[POST]";
+
+		RequestParam requestParam;
+
+		string json_str = requestParam.getRequestValue("course");
+		Json::Reader reader;
+		Json::Value JsonCourse;
+
+		if(reader.parse(json_str,JsonCourse))
+		{
+			auto course = make_shared<Course>();
+
+			course->id = JsonCourse["id"].asInt();
+			course->start_hour = JsonCourse["start_hour"].asString();
+			course->start_date = JsonCourse["start_date"].asLargestInt();
+			course->capacity = JsonCourse["capacity"].asInt();
+			course->registration_num = JsonCourse["registration_num"].asInt();
+			course->type = JsonCourse["type"].asString();
+			course->price = JsonCourse["price"].asDouble();
+			course->coach->id = JsonCourse["coach"]["id"].asInt();
+			course->venue->id = JsonCourse["venue"]["id"].asInt();
+
+
+			auto courseOrder = make_shared<CourseOrder>();
+			courseOrder->course = course;
+			courseOrder->member->id = stoi(requestParam.getRequestValue("member_id"));
+			courseOrder->price = course->price;
+			courseOrder->time = time(nullptr);
+
+
+			courseDAO.update(course.get());
+			courseOrderDAO.add(courseOrder.get());
 			response(true);
 		}else{
 			LOG(ERROR)<<"json parse fail";
@@ -402,7 +443,7 @@ unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::get
 
 
 		renewOrder->member = member;
-		renewOrder->time = time_t(nullptr);
+		renewOrder->time = time(nullptr);
 		renewOrder->price = stod(requestParam.getRequestValue("price"));
 		renewOrder->start_date = stol(requestParam.getRequestValue("order_start_date"));
 		renewOrder->end_date = member->end_date;

@@ -58,6 +58,7 @@ namespace wyx{
 			string start_hour;
 			double price;
 			int capacity;
+			int registration_num;
 			string type;
 			shared_ptr<Venue> venue;
 			shared_ptr<Coach> coach;
