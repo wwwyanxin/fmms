@@ -27,8 +27,8 @@
         },
         methods:{
             async getTest(){
-                const res = await Api.get('course_get_week', {
-                    start_date:'1555344000'
+                const res = await Api.get('course_order_list', {
+                    // member_id:14
                 });
                 this.textTest = res;
                 console.log(res);

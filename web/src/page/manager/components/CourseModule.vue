@@ -59,6 +59,12 @@
                     >
                     </el-table-column>
 
+                    <el-table-column
+                            prop="registration_num"
+                            label="已选择人数"
+                    >
+                    </el-table-column>
+
                 </el-table>
 
             </div>

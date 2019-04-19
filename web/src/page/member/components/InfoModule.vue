@@ -62,7 +62,7 @@
         },
         mounted(){
 
-            /*// 测试默认登录账号
+            // 测试默认登录账号
             global.set("member", {
                 "account": "wyx",
                 "end_date": -1,
@@ -71,7 +71,7 @@
                 "password": "123",
                 "sex": "male",
                 "start_date": -1
-            })*/
+            })
             this.member = global.get("member")
         },
         methods:{
