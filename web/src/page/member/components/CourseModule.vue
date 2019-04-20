@@ -119,7 +119,7 @@
                 pickerOptions: {
                     firstDayOfWeek:1,
                     disabledDate(time) {
-                        return time.getTime() < Date.now();
+                        return time.getTime() < (Date.now()-1*24*60*60*1000);
                     },
                 }
             }
