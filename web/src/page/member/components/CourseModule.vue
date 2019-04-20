@@ -160,12 +160,8 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    row.registration_num++;
                     this.formConfirm(row)
-                    this.$message({
-                        type: 'success',
-                        message: '购买成功!'
-                    });
+
                 }).catch(() => {
                     this.$message({
                         type: 'info',
@@ -175,12 +171,25 @@
             },
 
             async formConfirm(course) {
-                await Api.post("course_buy", {
+                course.registration_num++;
+                const res = await Api.post("course_buy", {
                         course: JSON.stringify(course),
                         member_id:global.get("member").id,
                     }
                 );
-                //this.pullCourseList();
+                if(res.status){
+                    this.$message({
+                        type: 'success',
+                        message: '购买成功!'
+                    });
+                }else{
+                    course.registration_num--;
+                    this.$message({
+                        type: 'error',
+                        message: '已购买次课程，无需重复购买！'
+                    })
+                }
+
                 this.dialogVisible = false;
             }
         }
