@@ -7,8 +7,8 @@
                         v-model="tableDate"
                         type="week"
                         format="yyyy 第 WW 周"
-                        :picker-options="{firstDayOfWeek:1}"
                         @change="switchDate"
+                        :picker-options="pickerOptions"
                         placeholder="选择周">
                 </el-date-picker>
             </div>
@@ -116,6 +116,12 @@
                 tableDate: new Date(),
                 start_date: this.dateFormat(this.getFirstDay(new Date())),
                 dialogVisible: false,
+                pickerOptions: {
+                    firstDayOfWeek:1,
+                    disabledDate(time) {
+                        return time.getTime() < Date.now();
+                    },
+                }
             }
         },
         mounted() {

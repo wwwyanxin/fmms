@@ -5,6 +5,7 @@
                     :data="courseOrderList"
                     border
                     stripe
+                    empty-text="无订单"
                     style="width: 100%">
                 <el-table-column
                         prop="id"
@@ -58,7 +59,7 @@
                 >
                     <template slot-scope="scope">
                         <i class="el-icon-time"></i>
-                        {{dateFormat(scope.row.course.start_date)}}
+                        {{scope.row.course?dateFormat(scope.row.course.start_date):''}}
                     </template>
                 </el-table-column>
 
@@ -69,29 +70,29 @@
                 </el-table-column>
 
                 <el-table-column
-                            prop="course.venue.name"
-                            label="场馆"
-                    >
-                    </el-table-column>
-                    <el-table-column
-                            prop="course.coach.name"
-                            label="教练"
-                            width="70"
-                    >
-                    </el-table-column>
-                    <el-table-column
-                            prop="course.type"
-                            label="课程类型"
-                    >
-                        <template slot-scope="scope">
-                            <span>{{ scope.row.course.type ? scope.row.course.type : scope.row.course.venue.venue_type.type }}</span>
-                        </template>
-                    </el-table-column>
-                    <el-table-column
-                            prop="course.capacity"
-                            label="课程容纳人数"
-                    >
-                    </el-table-column>
+                        prop="course.venue.name"
+                        label="场馆"
+                >
+                </el-table-column>
+                <el-table-column
+                        prop="course.coach.name"
+                        label="教练"
+                        width="70"
+                >
+                </el-table-column>
+                <el-table-column
+                        prop="course.type"
+                        label="课程类型"
+                >
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.course.type ? scope.row.course.type : scope.row.course.venue.venue_type.type }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column
+                        prop="course.capacity"
+                        label="课程容纳人数"
+                >
+                </el-table-column>
 
             </el-table>
         </div>
@@ -113,17 +114,7 @@
         },
         data() {
             return {
-                courseOrderList: [
-                    {
-                        course:{
-                            venue:{
-                                venue_type:{}
-                            },
-                            coach:{}
-                        },
-                        member:{},
-                    }
-                ],
+                courseOrderList: [],
             }
         },
         mounted() {
@@ -146,7 +137,11 @@
                         course_id: this.listParam.param
                     })
                 }
-                this.courseOrderList = res.data.courseOrderList;
+                if(res.data){
+                    this.courseOrderList = res.data.courseOrderList ;
+                }else{
+                    this.courseOrderList = []
+                }
             },
 
         },

@@ -5,6 +5,7 @@
                     :data="renewOrderList"
                     border
                     stripe
+                    empty-text="无订单"
                     style="width: 100%">
                 <el-table-column
                         prop="id"
@@ -84,11 +85,7 @@
         },
         data() {
             return {
-                renewOrderList: [
-                    {
-                        member:{},
-                    }
-                ],
+                renewOrderList: [],
             }
         },
         mounted() {
@@ -107,7 +104,11 @@
                         member_id: this.listParam.param
                     })
                 }
-                this.renewOrderList = res.data.renewOrderList;
+                if(res.data){
+                    this.renewOrderList = res.data.renewOrderList;
+                }else{
+                    this.renewOrderList = [];
+                }
             },
 
         },

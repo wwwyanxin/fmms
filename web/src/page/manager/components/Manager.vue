@@ -16,6 +16,12 @@
             <el-tab-pane lazy label="课程管理" name="CourseModule">
                 <CourseModule v-if="activeName === 'CourseModule'"></CourseModule>
             </el-tab-pane>
+            <el-tab-pane lazy label="续费订单查看" name="RenewOrder">
+                <RenewOrder v-if="activeName === 'RenewOrder'" :listParam="{ type: 'all', param: '', }" ></RenewOrder>
+            </el-tab-pane>
+            <el-tab-pane lazy label="课程订单查看" name="CourseOrder">
+                <CourseOrder v-if="activeName === 'CourseOrder'" :list-param="{ type: 'all', param: '', }"></CourseOrder>
+            </el-tab-pane>
         </el-tabs>
     </div>
 </template>
@@ -28,10 +34,12 @@
     import CoachModule from "./CoachModule";
     import VenueModule from "./VenueModule";
     import CourseModule from "./CourseModule";
+    import RenewOrder from "../../../components-ui/order/RenewOrder";
+    import CourseOrder from "../../../components-ui/order/CourseOrder";
 
     export default {
         name: "Home",
-        components: {CourseModule, VenueModule, CoachModule, MemberModule},
+        components: {CourseOrder, RenewOrder, CourseModule, VenueModule, CoachModule, MemberModule},
         data() {
             return {
                 manager: "",
@@ -41,11 +49,11 @@
         created() {},
         beforeDestroy() {},
         async mounted() {
-            // 测试默认登录账号
+            /*// 测试默认登录账号
             global.set("manager",{
                 account:'wyx',
                 id:'1'
-            })
+            })*/
 
             if (global.get("manager")) {
                 this.manager = global.get("manager");
@@ -58,15 +66,15 @@
             }
         },
         methods: {
-        /*    // 切换模块
-            switchActive(name) {
-                if (name) {
-                    this.activeName = name
-                }
-            },
-            handleClick(tab, event) {
-                console.log(this.activeName)
-            },*/
+            /*    // 切换模块
+                switchActive(name) {
+                    if (name) {
+                        this.activeName = name
+                    }
+                },
+                handleClick(tab, event) {
+                    console.log(this.activeName)
+                },*/
         },
         computed: {}
     }

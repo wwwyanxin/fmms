@@ -65,6 +65,12 @@
                     >
                     </el-table-column>
 
+                    <el-table-column label="购买记录" width="75">
+                        <template slot-scope="scope">
+                            <el-button type="danger" size="mini" @click="handleOrder(scope.$index, scope.row)">查看</el-button>
+                        </template>
+                    </el-table-column>
+
                 </el-table>
 
             </div>
@@ -148,6 +154,11 @@
 
                 </el-dialog>
             </div>
+            <div class="order">
+                <el-dialog width="100%" title="购买记录" :visible.sync="orderVisible">
+                    <CourseOrder v-if="orderVisible" :list-param="listParam"></CourseOrder>
+                </el-dialog>
+            </div>
         </div>
     </div>
 </template>
@@ -157,9 +168,11 @@
     import {cloneDeep} from '@/lib/util'
     import global from '@/service/global'
     import dayjs from 'dayjs'
+    import CourseOrder from "../../../components-ui/order/CourseOrder";
 
     export default {
         name: "Course",
+        components: {CourseOrder},
         data() {
             return {
                 courseList: [
@@ -197,7 +210,9 @@
                 start_hour: '',
                 addButton: false,
                 dialogVisible: false,
-                innerVisible:false
+                innerVisible:false,
+                orderVisible: false,
+                listParam:{}
             }
         },
         mounted() {
@@ -206,6 +221,13 @@
             this.pullCourseList();
         },
         methods: {
+            handleOrder(index, row){
+                this.listParam = {
+                    type: 'course',
+                    param: row.id,
+                }
+                this.orderVisible = true
+            },
             priceChange(courseItem) {
                 courseItem.price = parseFloat(courseItem.price);
                 courseItem.price = courseItem.price >= 0 ? courseItem.price : 0;
