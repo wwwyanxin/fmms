@@ -871,6 +871,35 @@ void CourseOrderDAO::add(CourseOrder * courseOrder){
 	return;
 }
 
+int CourseOrderDAO::countOfMemberAndCourse(int order_id,int member_id){
+	string sql_str="select count(*) from course_order where course_id=? and member_id=?;";
+
+	shared_ptr<sql::Connection> conn;
+	shared_ptr<sql::PreparedStatement> pstmt;
+	shared_ptr<sql::ResultSet> res;
+
+	try{
+		conn.reset(DBConn::getConnect());
+		pstmt.reset(conn->prepareStatement(sql_str));
+
+		pstmt->setInt(1,order_id);
+		pstmt->setInt(2,member_id);
+
+		res.reset(pstmt->executeQuery());
+
+		LOG(INFO)<<"sql execute success";
+
+
+		if(res->next()){
+			return res->getInt(1);
+		}
+
+	} catch (sql::SQLException& e) {
+		daoExceptionCatch(e);
+	}
+	return 0;
+}
+
 vector<shared_ptr<CourseOrder>>* CourseOrderDAO::list(){
 	auto courseOrderList = new vector<shared_ptr<CourseOrder>>;
 	string sql_str="select course_order.*, \
@@ -882,7 +911,7 @@ vector<shared_ptr<CourseOrder>>* CourseOrderDAO::list(){
 					member.start_date as `member.start_date`, \
 					member.end_date as `member.end_date` \
 					from course_order,member \
-					where course_order.member_id = member.id;;";
+					where course_order.member_id = member.id;";
 	shared_ptr<sql::Connection> conn;
 	shared_ptr<sql::PreparedStatement> pstmt;
 	shared_ptr<sql::ResultSet> res;
@@ -895,22 +924,139 @@ vector<shared_ptr<CourseOrder>>* CourseOrderDAO::list(){
 
 		LOG(INFO)<<"sql execute success";
 
+		auto courseDAO = make_shared<CourseDAO>();
+
 		while(res->next()){
 			auto courseOrder = make_shared<CourseOrder>();
-			courseOrder->id = res->getInt("id");
-			member->name = res->getString("name");
-			member->account = res->getString("account");
-			member->password = res->getString("password");
-			member->sex = res->getString("sex");
-			member->start_date = res->getInt("start_date");
-			member->end_date = res->getInt("end_date");
 
-			memberList->push_back(member);
+			courseOrder->id = res->getInt("id");
+			courseOrder->time = res->getInt("time");
+			courseOrder->price = res->getDouble("price");
+			
+			courseOrder->member->id = res->getInt("member.id");
+			courseOrder->member->name = res->getString("member.name");
+			courseOrder->member->account = res->getString("member.account");
+			courseOrder->member->password = res->getString("member.password");
+			courseOrder->member->sex = res->getString("member.sex");
+			courseOrder->member->start_date = res->getInt("member.start_date");
+			courseOrder->member->end_date = res->getInt("member.end_date");
+			courseOrder->course.reset(courseDAO->get(res->getInt("course_id")));
+
+
+			courseOrderList->push_back(courseOrder);
 		}
 
 	} catch (sql::SQLException& e) {
 		daoExceptionCatch(e);
 	}
-	return memberList;
+	return courseOrderList;
+}
+
+vector<shared_ptr<CourseOrder>>* CourseOrderDAO::listByMemberId(int member_id){
+	auto courseOrderList = new vector<shared_ptr<CourseOrder>>;
+	string sql_str="select course_order.*, \
+					member.id as `member.id`, \
+					member.name as `member.name`, \
+					member.account as `member.account`, \
+					member.password as `member.password`, \
+					member.sex as `member.sex`, \
+					member.start_date as `member.start_date`, \
+					member.end_date as `member.end_date` \
+					from course_order,member \
+					where member.id=? and course_order.member_id = member.id;";
+	shared_ptr<sql::Connection> conn;
+	shared_ptr<sql::PreparedStatement> pstmt;
+	shared_ptr<sql::ResultSet> res;
+
+	try{
+		conn.reset(DBConn::getConnect());
+		pstmt.reset(conn->prepareStatement(sql_str));
+
+		pstmt->setInt(1,member_id);
+
+		res.reset(pstmt->executeQuery());
+
+		LOG(INFO)<<"sql execute success";
+
+		auto courseDAO = make_shared<CourseDAO>();
+
+		while(res->next()){
+			auto courseOrder = make_shared<CourseOrder>();
+
+			courseOrder->id = res->getInt("id");
+			courseOrder->time = res->getInt("time");
+			courseOrder->price = res->getDouble("price");
+			
+			courseOrder->member->id = res->getInt("member.id");
+			courseOrder->member->name = res->getString("member.name");
+			courseOrder->member->account = res->getString("member.account");
+			courseOrder->member->password = res->getString("member.password");
+			courseOrder->member->sex = res->getString("member.sex");
+			courseOrder->member->start_date = res->getInt("member.start_date");
+			courseOrder->member->end_date = res->getInt("member.end_date");
+			courseOrder->course.reset(courseDAO->get(res->getInt("course_id")));
+
+
+			courseOrderList->push_back(courseOrder);
+		}
+
+	} catch (sql::SQLException& e) {
+		daoExceptionCatch(e);
+	}
+	return courseOrderList;
+}
+
+vector<shared_ptr<CourseOrder>>* CourseOrderDAO::listByCourseId(int course_id){
+	auto courseOrderList = new vector<shared_ptr<CourseOrder>>;
+	string sql_str="select course_order.*, \
+					member.id as `member.id`, \
+					member.name as `member.name`, \
+					member.account as `member.account`, \
+					member.password as `member.password`, \
+					member.sex as `member.sex`, \
+					member.start_date as `member.start_date`, \
+					member.end_date as `member.end_date` \
+					from course_order,member \
+					where course_order.course_id=? and course_order.member_id = member.id;";
+	shared_ptr<sql::Connection> conn;
+	shared_ptr<sql::PreparedStatement> pstmt;
+	shared_ptr<sql::ResultSet> res;
+
+	try{
+		conn.reset(DBConn::getConnect());
+		pstmt.reset(conn->prepareStatement(sql_str));
+
+		pstmt->setInt(1,course_id);
+
+		res.reset(pstmt->executeQuery());
+
+		LOG(INFO)<<"sql execute success";
+
+		auto courseDAO = make_shared<CourseDAO>();
+
+		while(res->next()){
+			auto courseOrder = make_shared<CourseOrder>();
+
+			courseOrder->id = res->getInt("id");
+			courseOrder->time = res->getInt("time");
+			courseOrder->price = res->getDouble("price");
+			
+			courseOrder->member->id = res->getInt("member.id");
+			courseOrder->member->name = res->getString("member.name");
+			courseOrder->member->account = res->getString("member.account");
+			courseOrder->member->password = res->getString("member.password");
+			courseOrder->member->sex = res->getString("member.sex");
+			courseOrder->member->start_date = res->getInt("member.start_date");
+			courseOrder->member->end_date = res->getInt("member.end_date");
+			courseOrder->course.reset(courseDAO->get(res->getInt("course_id")));
+
+
+			courseOrderList->push_back(courseOrder);
+		}
+
+	} catch (sql::SQLException& e) {
+		daoExceptionCatch(e);
+	}
+	return courseOrderList;
 }
 
