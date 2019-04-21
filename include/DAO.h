@@ -67,6 +67,7 @@ namespace wyx{
 	class CourseOrderDAO{
 		public:
 			void add(CourseOrder *courseOrder);
+			int countOfMemberAndCourse(int order_id,int member_id);
 			vector<shared_ptr<CourseOrder>>* listByMemberId(int member_id);
 			vector<shared_ptr<CourseOrder>>* list();
 

@@ -414,7 +414,13 @@ unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::get
 			courseOrder->price = course->price;
 			courseOrder->time = time(nullptr);
 
+			int course_count = courseOrderDAO.countOfMemberAndCourse(courseOrder->course->id,courseOrder->member->id);
+			LOG(INFO)<<"course_count="<<course_count;
+			if(course_count>0){
+				response(false);
+			}
 
+			
 			courseDAO.update(course.get());
 			courseOrderDAO.add(courseOrder.get());
 			response(true);
@@ -492,6 +498,81 @@ unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::get
 
 
 			JsonRoot["renewOrderList"].append(JsonList);
+		}
+
+		response(JsonRoot);
+	};
+
+	(*webResource)["^/course_order_list/?$"]["GET"]=[](){
+		LOG(INFO)<<"course_order_list[GET]";
+
+		RequestParam requestParam;
+
+		shared_ptr<vector<shared_ptr<CourseOrder>>> courseOrderList;
+		string member_id_str = requestParam.getRequestValue("member_id");
+		string course_id_str = requestParam.getRequestValue("course_id");
+
+		if(!member_id_str.empty()){
+			courseOrderList.reset(courseOrderDAO.listByMemberId(stoi(member_id_str)));
+		}else if(!course_id_str.empty()){
+			courseOrderList.reset(courseOrderDAO.listByCourseId(stoi(course_id_str)));
+		}else{
+			courseOrderList.reset(courseOrderDAO.list());
+		}
+		Json::Value JsonRoot;
+		for(auto &item : *courseOrderList){
+			Json::Value JsonList;
+			JsonList["id"] = Json::Value(item->id);
+			JsonList["time"] = Json::Value(item->time);
+			JsonList["price"] = Json::Value(item->price);
+
+			Json::Value JsonMember;
+			JsonMember["id"] = Json::Value(item->member->id);
+			JsonMember["name"] = Json::Value(item->member->name);
+			JsonMember["account"] = Json::Value(item->member->account);
+			JsonMember["password"] = Json::Value(item->member->password);
+			JsonMember["sex"] = Json::Value(item->member->sex);
+			JsonMember["start_date"] = Json::Value(item->member->start_date);
+			JsonMember["end_date"] = Json::Value(item->member->end_date);
+
+			JsonList["member"] = JsonMember;
+
+			Json::Value JsonCourse;
+
+			JsonCourse["id"] = Json::Value(item->course->id);
+			JsonCourse["start_date"] = Json::Value(item->course->start_date);
+			JsonCourse["start_hour"] = Json::Value(item->course->start_hour);
+			JsonCourse["price"] = Json::Value(item->course->price);
+			JsonCourse["capacity"] = Json::Value(item->course->capacity);
+			JsonCourse["registration_num"] = Json::Value(item->course->registration_num);
+			JsonCourse["type"] = Json::Value(item->course->type);
+
+			Json::Value JsonVenue;
+			JsonVenue["id"] = Json::Value(item->course->venue->id);
+			JsonVenue["name"] = Json::Value(item->course->venue->name);
+			JsonVenue["capacity"] = Json::Value(item->course->venue->capacity);
+			JsonVenue["status"] = Json::Value(item->course->venue->status);
+
+			Json::Value JsonVenueType;
+			JsonVenueType["id"] = Json::Value(item->course->venue->venue_type->id);
+			JsonVenueType["type"] = Json::Value(item->course->venue->venue_type->type);
+
+			Json::Value JsonCoach;
+			JsonCoach["id"] = Json::Value(item->course->coach->id);
+			JsonCoach["name"] = Json::Value(item->course->coach->name);
+			JsonCoach["entry_date"] = Json::Value(item->course->coach->entry_date);
+			JsonCoach["status"] = Json::Value(item->course->coach->status);
+			JsonCoach["sex"] = Json::Value(item->course->coach->sex);
+			JsonCoach["introduction"] = Json::Value(item->course->coach->introduction);
+
+			JsonVenue["venue_type"] = JsonVenueType;
+			JsonCourse["venue"] = JsonVenue;
+			JsonCourse["coach"] = JsonCoach;
+
+			JsonList["course"] = JsonCourse;
+
+
+			JsonRoot["courseOrderList"].append(JsonList);
 		}
 
 		response(JsonRoot);
