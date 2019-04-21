@@ -1,7 +1,8 @@
 <template>
     <div>
-        <div style="position: fixed;right: 20px;top:3px;">
-            <el-button type="danger" plain>{{member.account}}</el-button>
+        <div style="position: fixed;right: 20px;top:3px;z-index: 1;">
+            <el-button type="success" plain>{{member.account}}</el-button>
+            <el-button type="danger" size="mini" round @click="logout">退出</el-button>
         </div>
         <el-tabs v-model="activeName" type="card">
             <el-tab-pane lazy label="个人信息" name="InfoModule">
@@ -67,7 +68,12 @@
             }
 
         },
-        methods: {},
+        methods: {
+            logout(){
+                global.set("member",false);
+                this.$router.push("/login");
+            }
+        },
         computed: {}
     }
 </script>

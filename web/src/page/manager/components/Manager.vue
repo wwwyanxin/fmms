@@ -1,7 +1,8 @@
 <template>
     <div>
-        <div style="position: fixed;right: 20px;top:3px;">
-            <el-button type="danger" plain >{{manager.account}}</el-button>
+        <div style="position: fixed;right: 20px;top:3px;z-index: 1;">
+            <el-button type="success" plain >{{manager.account}}</el-button>
+            <el-button type="danger" size="mini" round @click="logout">退出</el-button>
         </div>
         <el-tabs v-model="activeName" type="card">
             <el-tab-pane lazy label="会员信息管理" name="MemberModule">
@@ -66,15 +67,10 @@
             }
         },
         methods: {
-            /*    // 切换模块
-                switchActive(name) {
-                    if (name) {
-                        this.activeName = name
-                    }
-                },
-                handleClick(tab, event) {
-                    console.log(this.activeName)
-                },*/
+            logout(){
+                global.set("manager",false);
+                this.$router.push("/login");
+            }
         },
         computed: {}
     }
