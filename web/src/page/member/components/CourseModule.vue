@@ -64,7 +64,7 @@
 
                     <el-table-column label="操作" width="75">
                         <template slot-scope="scope">
-                            <el-button :disabled="scope.row.capacity<=scope.row.registration_num" type="danger" size="mini" @click="handleBuy(scope.$index, scope.row)">购买</el-button>
+                            <el-button :disabled="scope.row.capacity<=scope.row.registration_num" type="danger" size="mini" @click="handleBuy(scope.$index, scope.row)">{{scope.row.capacity<=scope.row.registration_num?'已满':'购买'}}</el-button>
                         </template>
                     </el-table-column>
 
