@@ -237,11 +237,19 @@ RequestParam::RequestParam(){
 		if(inputdata)
 		{
 			memset((void*)inputdata,0,length);
+			for(int recv_count=0;recv_count<n;)
+			{
+				int read_num = read(STDIN_FILENO,inputdata+recv_count,n-recv_count);
+				recv_count+=read_num;
+			}
+			/*
+			memset((void*)inputdata,0,length);
 			int read_num = read(STDIN_FILENO,inputdata,n);
 			if(n != read_num)
 			{
 				LOG(ERROR)<<"读取post参数不完整"<<"CONTENT_LENGTH="<<n<<"    read_num="<<read_num;
 			}
+			*/
 
 			this->requestParam = UrlDecode(inputdata);
 
