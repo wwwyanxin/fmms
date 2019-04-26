@@ -38,7 +38,7 @@
                     account:'test1',
                     password:'password1',
                     name:'name1',
-                    sex:'female',
+                    sex:'male',
                 })
                 this.textTest = res;
                 console.log(res);
