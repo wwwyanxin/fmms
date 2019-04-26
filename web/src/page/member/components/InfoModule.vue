@@ -11,7 +11,7 @@
                     <span class="text-value">ID：{{member.id}}</span>
                 </div>
                 <div class="text item">
-                    <span class="text-value">性别：{{member.sex}}</span>
+                    <span class="text-value">性别：{{member.sex === 'male' ? '男':'女'}}</span>
                     <span class="text-value">姓名：{{member.name}}</span>
                 </div>
                 <div class="text item">

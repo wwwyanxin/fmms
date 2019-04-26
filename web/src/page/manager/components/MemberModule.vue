@@ -28,7 +28,7 @@
                         width="80"
                 >
                     <template slot-scope="scope">
-                        {{scope.row.sex === 'female' ? '男':'女'}}
+                        {{scope.row.sex === 'male' ? '男':'女'}}
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -68,8 +68,8 @@
                     </el-form-item>
                     <el-form-item label="性别">
                         <el-radio-group v-model="form.sex" size="small">
-                            <el-radio-button :label="'female'">男</el-radio-button>
-                            <el-radio-button :label="'male'">女</el-radio-button>
+                            <el-radio-button :label="'male'">男</el-radio-button>
+                            <el-radio-button :label="'female'">女</el-radio-button>
                         </el-radio-group>
                     </el-form-item>
                 </el-form>

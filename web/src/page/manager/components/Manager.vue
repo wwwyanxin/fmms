@@ -44,7 +44,7 @@
         data() {
             return {
                 manager: "",
-                activeName: 'CourseModule'
+                activeName: 'MemberModule'
             }
         },
         created() {},
