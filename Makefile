@@ -10,7 +10,8 @@ vpath %.o build
 CC = g++
 RELEASE = -o3  #开启o3优化
 DEBUG = -o0 -g  #调试模式 不开启优化
-CFLAGS = -std=c++11 -pthread $(DEBUG) $(LIB)
+#CFLAGS = -std=c++11 -pthread $(DEBUG) $(LIB)
+CFLAGS = -std=c++11 -pthread $(RELEASE) $(LIB)
 OUT_PATH = /var/www/fmms/cgi-bin/
 COMPILE_PATH = build/
 

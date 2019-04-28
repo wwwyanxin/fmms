@@ -4,7 +4,7 @@
 
 #include <unordered_map>
 #include <regex>
-#include "Session.h"
+//#include "Session.h"
 
 namespace wyx{
 	using namespace std;
@@ -14,7 +14,7 @@ namespace wyx{
 
 			shared_ptr<unordered_map<string,unordered_map<string,function<void()>>>>  resource;
 
-			shared_ptr<wyx::Session> session;
+//			shared_ptr<wyx::Session> session;
 
 
 		public:
