@@ -66,7 +66,7 @@
             </el-table>
         </div>
         <div class="edit">
-            <el-dialog title="编辑教练" :visible.sync="dialogVisible" width="55%">
+            <el-dialog :title="model==='add'?'添加教练':'编辑教练'" :visible.sync="dialogVisible" width="55%">
                 <el-form>
                     <el-form-item label="姓名">
                         <el-input v-model="form.name" clearable
@@ -153,6 +153,7 @@
             checkForm() {
                 if (this.checkItem(this.form, 'name', '未填写姓名') &&
                     this.checkItem(this.form, 'sex', '未选择性别') &&
+                    this.checkItem(this.form, 'status', '未选择在职状态') &&
                     this.checkItem(this.form, 'introduction', '请填写简介')
                 ) {
                     return true;

@@ -54,7 +54,7 @@
         </div>
 
         <div class="edit">
-            <el-dialog title="编辑场馆" :visible.sync="dialogVisible" width="55%">
+            <el-dialog :title="model='add'?'添加场馆':'编辑场馆'" :visible.sync="dialogVisible" width="55%">
                 <el-form>
                     <el-form-item label="场馆名">
                         <el-input v-model="form.name" clearable
