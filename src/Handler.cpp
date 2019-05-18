@@ -418,12 +418,13 @@ unordered_map<string,unordered_map<string,function<void ()>>>* wyx::Handler::get
 			LOG(INFO)<<"course_count="<<course_count;
 			if(course_count>0){
 				response(false);
+				return;
+			}else{
+				courseDAO.update(course.get());
+				courseOrderDAO.add(courseOrder.get());
+				response(true);
+				return;
 			}
-
-			
-			courseDAO.update(course.get());
-			courseOrderDAO.add(courseOrder.get());
-			response(true);
 		}else{
 			LOG(ERROR)<<"json parse fail";
 			response(false);
